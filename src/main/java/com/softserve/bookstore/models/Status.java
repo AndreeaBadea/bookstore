@@ -13,7 +13,7 @@ public enum Status {
 
     PENDING,
 
-    IN_TRANSIT,
+    IN_PROCESS,
 
     COMPLETED;
 

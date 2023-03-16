@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 @Component
 public class SqlConnectionManager implements ConnectionManager {
@@ -24,11 +25,18 @@ public class SqlConnectionManager implements ConnectionManager {
         this.username = username;
         this.password = password;
 
+
+
         try{
-            connection =  DriverManager.getConnection(url);
-            System.out.println("Connection successful.");
-        }catch (SQLException e){
-            System.out.println("Connection to database failed.");
+            try(Connection connection = DriverManager.getConnection(url, username, password)){
+                System.out.println("Connection established successfully.");
+                Statement statement = connection.createStatement();
+                String query = "CREATE TABLE test " + "(ID int not NULL," + "name VARCHAR(20))";
+                statement.executeUpdate(query);
+                System.out.println("Table created.");
+            }
+            }catch (SQLException e ){
+                System.out.println("Error connecting");   e.printStackTrace();
         }
     }
 
