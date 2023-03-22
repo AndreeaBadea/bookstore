@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
+import java.util.List;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,15 +15,31 @@ import org.springframework.data.annotation.Id;
 @Getter
 public class User {
 
-
     @Id
-    private int id;
+    private int userId;
 
     private String email;
 
     private String password;
 
-    private Order orderId;
+    private List<Order> orders;
 
-//    private Role role;
+    private List<Role> roles;
+
+    public User(int userId, String email, String password) {
+        this.userId = userId;
+        this.email = email;
+        this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", orders=" + orders +
+                ", roles=" + roles +
+                '}';
+    }
 }

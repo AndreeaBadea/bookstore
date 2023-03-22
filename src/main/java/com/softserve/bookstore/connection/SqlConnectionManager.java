@@ -2,11 +2,11 @@ package com.softserve.bookstore.connection;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.tinylog.Logger;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 @Component
 public class SqlConnectionManager implements ConnectionManager {
@@ -28,15 +28,12 @@ public class SqlConnectionManager implements ConnectionManager {
 
 
         try{
-            try(Connection connection = DriverManager.getConnection(url, username, password)){
-                System.out.println("Connection established successfully.");
-                Statement statement = connection.createStatement();
-                String query = "CREATE TABLE test " + "(ID int not NULL," + "name VARCHAR(20))";
-                statement.executeUpdate(query);
-                System.out.println("Table created.");
-            }
+            connection = DriverManager.getConnection(url, username, password);
+            Logger.info("Connection established successfully.");
+
             }catch (SQLException e ){
-                System.out.println("Error connecting");   e.printStackTrace();
+                Logger.error("Error connecting to database..");
+                e.printStackTrace();
         }
     }
 
