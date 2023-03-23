@@ -23,6 +23,10 @@ public class UserRepository {
 
     public static final String INSERT_USERS = "INSERT INTO users(email, password) VALUES (?,?)";
     public static final String SELECT_USERS = "SELECT * FROM users";
+
+    public static final String SELECT_LAST_USERS = "SELECT TOP 2 * FROM users ORDER BY id_user DESC ";
+
+
     public static final String INSERT_USERS_ROLES = "INSERT INTO users_roles(id_user, id_role) VALUES(?,?)";
     public static final String INSERT_ORDERS = "INSERT INTO orders(id_user, date, status) VALUES(?,?,?)";
 
@@ -57,13 +61,30 @@ public class UserRepository {
 //                .collect(Collectors.toList());
     }
 
-    private static boolean isNext(ResultSet resultSet) throws SQLException {
-        try {
-            return resultSet.next();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+    public List<User> findLastUsersAdded(int numberOfRecord) throws SQLException {
+        Connection connection = connectionManager.getConnection();
+        PreparedStatement userStatement = connection.prepareStatement(SELECT_LAST_USERS);
+       // userStatement.setInt(1, numberOfRecord);
+        ResultSet resultSet = userStatement.executeQuery();
+        List<User> users = new ArrayList<>();
+        while(resultSet.next()){
+            int userId = resultSet.getInt("id_user");
+            String email = resultSet.getString("email").trim();
+            String password = resultSet.getString("password").trim();
+            User user = new User(userId, email, password);
+            users.add(user);
         }
+        Collections.reverse(users);
+        return users;
     }
+
+//    private static boolean isNext(ResultSet resultSet) throws SQLException {
+//        try {
+//            return resultSet.next();
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     private Optional<User> getNextUser(ResultSet resultSet){
         try{
@@ -80,6 +101,16 @@ public class UserRepository {
         }
     }
 
+    public User getUserByEmail(List<User> users, String email){
+        for(User user : users){
+            if(email.equals(user.getEmail().trim())){
+                return user;
+            }
+        }
+        //fac cu optional
+        return null;
+    }
+
 
     public void addUsers(List<User> users) throws SQLException {
         Connection connection = connectionManager.getConnection();
@@ -89,19 +120,26 @@ public class UserRepository {
         });
         userStatement.executeBatch();
 
-        List<User> userAdded = findAll();
-        System.out.println(userAdded.size());
-        for (int i = 0; i < users.size() ; i++){
-            addRole(Role.USER.toString(), users.get(i));
-            if(users.get(i).getRoles().size() > 1){
-                addRole(Role.ADMIN.toString(), users.get(i));
+        List<User> lastUsersAdded = findLastUsersAdded(2);
+
+        for (int i = 0; i < lastUsersAdded.size(); i++) {
+
+            addRole(Role.USER.toString(), lastUsersAdded.get(i));
+            User user = getUserByEmail(users, lastUsersAdded.get(i).getEmail());
+
+            if (user.getRoles().size() > 1) {
+                addRole(Role.ADMIN.toString(), lastUsersAdded.get(i));
             }
-            if(users.get(i).getOrders().size() > 1){
+
+            if (users.get(i).getOrders().size() > 1) {
                 addOrdersToUser(users.get(i));
             }
         }
-
     }
+
+
+
+
 
     private static void addToBatch(PreparedStatement userStatement, User user) {
         try {
@@ -123,12 +161,17 @@ public class UserRepository {
         int roleId = Optional.ofNullable(roleIds.get(roleName))
                 .orElseThrow(() -> new IllegalArgumentException("Invalid role name."));
 
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.valueOf(roleName));
+        user.setRoles(roles);
+
         PreparedStatement roleStatement = connection.prepareStatement(INSERT_USERS_ROLES);
 
         roleStatement.setInt(1, user.getUserId());
         roleStatement.setInt(2, roleId);
         roleStatement.executeUpdate();
-        Logger.info("User " + user.getEmail() + " has now role " + roleName);
+        Logger.info("User " + user.getEmail() + " has now role " + user.getRoles());
+
     }
 
     public void addOrder(Order order, User user, PreparedStatement orderStatement) throws SQLException {
@@ -142,9 +185,17 @@ public class UserRepository {
 
         PreparedStatement orderStatement = connection.prepareStatement(INSERT_ORDERS);
 
+        List<User> users = findLastUsersAdded(2);
+        User aaa = null;
+        for(User userA : users){
+            if (userA.getEmail().equals(user.getEmail())){
+                aaa = userA;
+            }
+        }
+
         for(int i = 0; i < user.getOrders().size(); i++){
-            addOrder(user.getOrders().get(i), user, orderStatement);
-            System.out.println("Orders for " + user.getEmail() + user.getOrders());
+            addOrder(user.getOrders().get(i), aaa, orderStatement);
+            System.out.println("comanda" + user.getOrders().get(i) + " pt userul " + aaa.getEmail());
             orderStatement.addBatch();
         }
         orderStatement.executeBatch();
