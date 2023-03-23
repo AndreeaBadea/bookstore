@@ -26,6 +26,8 @@ public class UserService {
     public void addUser(String fileName) throws SQLException, IOException {
         List<User> users = getAllUsersFromFile(fileName);
         userRepository.addUsers(users);
+       // userRepository.addCorespondingRolesToUser(users);
+       // userRepository.addCorespondingRolesToUser(users);
         Logger.info("Users successfully added to the database.");
     }
 
