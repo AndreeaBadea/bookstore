@@ -1,7 +1,7 @@
-package com.softserve.bookstore.serviceee;
+package com.softserve.bookstore.service;
 
 import com.softserve.bookstore.models.Book;
-import com.softserve.bookstore.repositoryyyyy.BookRepository;
+import com.softserve.bookstore.repositories.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

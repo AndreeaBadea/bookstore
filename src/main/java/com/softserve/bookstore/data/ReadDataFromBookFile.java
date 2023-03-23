@@ -1,4 +1,4 @@
-package com.softserve.bookstore.connection;
+package com.softserve.bookstore.data;
 
 import com.softserve.bookstore.models.Author;
 import com.softserve.bookstore.models.Book;

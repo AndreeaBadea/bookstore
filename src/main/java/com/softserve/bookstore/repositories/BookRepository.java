@@ -1,8 +1,8 @@
-package com.softserve.bookstore.repositoryyyyy;
+package com.softserve.bookstore.repositories;
 
 
 import com.softserve.bookstore.connection.ConnectionManager;
-import com.softserve.bookstore.connection.ReadDataFromBookFile;
+import com.softserve.bookstore.data.ReadDataFromBookFile;
 import com.softserve.bookstore.models.Author;
 import com.softserve.bookstore.models.Book;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -22,6 +23,8 @@ public class BookRepository {
     public static final String INSERT_SQL = "INSERT INTO books (title,id_author,genre,price) VALUES (?,?,?,?)";
     public static final String QUERY = "SELECT * FROM author WHERE first_name = ? AND last_name = ? ";
     public static final String QUERY_AUTHORS = "INSERT INTO author( first_name,last_name) VALUES(?,?)";
+    public static final String SELECT_LAST_AUTHORS = "SELECT TOP 3 * FROM author ORDER BY id_author DESC";
+
     @Autowired
     private ReadDataFromBookFile readDataFromBookFile;
 
@@ -48,8 +51,36 @@ public class BookRepository {
             result.add(item);
         }
         return result;
-
     }
+
+    //refactor!
+    public Author getAuthorByName(List<Author> authors, String firstName, String lastName){
+        for(Author author : authors){
+            if(firstName.equals(author.getFirstName()) && lastName.equals(author.getLastName())){
+                return author;
+            }
+        }
+        return null;
+    }
+
+
+    public List<Author> findLastAuthorsAdded(int numberOfRecords) throws SQLException {
+        Connection connection = connectionManager.getConnection();
+        PreparedStatement authorStatement = connection.prepareStatement(SELECT_LAST_AUTHORS);
+        ResultSet resultSet = authorStatement.executeQuery();
+        List<Author> authors = new ArrayList<>();
+        while(resultSet.next()){
+            int authorId = resultSet.getInt("id_author");
+            String firstName = resultSet.getString("first_name");
+            String lastName = resultSet.getString("last_name");
+            Author author = new Author(authorId, firstName, lastName);
+            authors.add(author);
+        }
+        Collections.reverse(authors);
+        return  authors;
+    }
+
+
       private static void addToBatch(PreparedStatement statement, Author author) {
 
         try {
@@ -71,8 +102,9 @@ public class BookRepository {
             addToBatch(statement,author);
         });
         statement.executeBatch();
-
     }
+
+
 
 
     public void addBook( List<Book>bookList) throws SQLException {
@@ -81,28 +113,29 @@ public class BookRepository {
 
         PreparedStatement bookStatement = con.prepareStatement(INSERT_SQL);
 
-        for (Book book : bookList) {
+        List<Author> authorsListFromFile = new ArrayList<>();
 
+        for (Book book : bookList) {
             String firstName = book.getAuthor().getFirstName();
             String lastName = book.getAuthor().getLastName();
-            int idAuthor = book.getAuthor().getIdAuthor();
-
-
-            List<Author> authorList = findAuthorByName(firstName, lastName);
-            authorList.add(new Author(idAuthor,firstName,lastName));
-            addAuthors(authorList);
-            System.out.println(authorList);
-
-
-            bookStatement.setString(1, book.getTitle());
-            bookStatement.setInt(2, book.getAuthor().getIdAuthor());
-            bookStatement.setString(3, String.valueOf(book.getGenre()));
-            bookStatement.setFloat(4, book.getPrice());
-            bookStatement.addBatch();
-
+            authorsListFromFile.add(new Author(firstName, lastName));
         }
-            bookStatement.executeBatch();
 
+            addAuthors(authorsListFromFile);
+            List<Author> lastAuthorsAdded = findLastAuthorsAdded(3);
+
+            for(int i = 0; i < lastAuthorsAdded.size(); i++){
+                bookStatement.setString(1, bookList.get(i).getTitle());
+                Author author = getAuthorByName(lastAuthorsAdded,
+                        bookList.get(i).getAuthor().getFirstName(),
+                        bookList.get(i).getAuthor().getLastName());
+
+                bookStatement.setInt(2, author.getIdAuthor());
+                bookStatement.setString(3, String.valueOf(bookList.get(i).getGenre()));
+                bookStatement.setFloat(4, bookList.get(i).getPrice());
+                bookStatement.addBatch();
+            }
+            bookStatement.executeBatch();
     }
 
 }
