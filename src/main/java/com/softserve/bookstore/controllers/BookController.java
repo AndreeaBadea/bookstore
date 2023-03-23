@@ -1,7 +1,7 @@
-package com.softserve.bookstore.connection;
+package com.softserve.bookstore.controllers;
 
 import com.softserve.bookstore.models.Book;
-import com.softserve.bookstore.serviceee.BookService;
+import com.softserve.bookstore.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
