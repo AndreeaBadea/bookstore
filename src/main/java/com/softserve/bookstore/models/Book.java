@@ -15,6 +15,6 @@ public class Book {
     private String title;
     private Author author;
     private Genre genre;
-    private double price;
+    private float price;
 
 }
