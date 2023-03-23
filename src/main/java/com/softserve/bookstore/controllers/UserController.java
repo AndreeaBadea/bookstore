@@ -1,5 +1,6 @@
 package com.softserve.bookstore.controllers;
 
+import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.models.User;
 import com.softserve.bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addAllUsers() throws SQLException, IOException {
+    public ResponseEntity<String> addAllUsers() throws SQLException, IOException, UserNotFoundException {
         userService.addUser(FILE_NAME);
         return new ResponseEntity<>("All users were added to the database.", HttpStatus.CREATED);
     }
