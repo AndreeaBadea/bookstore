@@ -1,6 +1,7 @@
 package com.softserve.bookstore.repositories;
 
 import com.softserve.bookstore.connection.ConnectionManager;
+import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.models.Order;
 import com.softserve.bookstore.models.Role;
 import com.softserve.bookstore.models.User;
@@ -23,10 +24,7 @@ public class UserRepository {
 
     public static final String INSERT_USERS = "INSERT INTO users(email, password) VALUES (?,?)";
     public static final String SELECT_USERS = "SELECT * FROM users";
-
-    public static final String SELECT_LAST_USERS = "SELECT TOP 2 * FROM users ORDER BY id_user DESC ";
-
-
+    public static final String SELECT_LAST_USERS = "SELECT TOP 2 ? FROM users ORDER BY id_user DESC ";
     public static final String INSERT_USERS_ROLES = "INSERT INTO users_roles(id_user, id_role) VALUES(?,?)";
     public static final String INSERT_ORDERS = "INSERT INTO orders(id_user, date, status) VALUES(?,?,?)";
 
@@ -64,7 +62,7 @@ public class UserRepository {
     public List<User> findLastUsersAdded(int numberOfRecord) throws SQLException {
         Connection connection = connectionManager.getConnection();
         PreparedStatement userStatement = connection.prepareStatement(SELECT_LAST_USERS);
-       // userStatement.setInt(1, numberOfRecord);
+        userStatement.setInt(1, numberOfRecord);
         ResultSet resultSet = userStatement.executeQuery();
         List<User> users = new ArrayList<>();
         while(resultSet.next()){
@@ -101,18 +99,14 @@ public class UserRepository {
         }
     }
 
-    public User getUserByEmail(List<User> users, String email){
-        for(User user : users){
-            if(email.equals(user.getEmail().trim())){
-                return user;
-            }
-        }
-        //fac cu optional
-        return null;
+    public Optional<User> getUserByEmail(List<User> users, String email){
+        return users.stream()
+                .filter(user -> email.equals(user.getEmail().trim()))
+                .findFirst();
     }
 
 
-    public void addUsers(List<User> users) throws SQLException {
+    public void addUsers(List<User> users) throws SQLException, UserNotFoundException {
         Connection connection = connectionManager.getConnection();
         PreparedStatement userStatement = connection.prepareStatement(INSERT_USERS);
         users.forEach(user -> {
@@ -120,12 +114,15 @@ public class UserRepository {
         });
         userStatement.executeBatch();
 
-        List<User> lastUsersAdded = findLastUsersAdded(2);
+        List<User> lastUsersAdded = findLastUsersAdded(users.size());
 
         for (int i = 0; i < lastUsersAdded.size(); i++) {
 
             addRole(Role.USER.toString(), lastUsersAdded.get(i));
-            User user = getUserByEmail(users, lastUsersAdded.get(i).getEmail());
+            if(getUserByEmail(users, lastUsersAdded.get(i).getEmail()).isEmpty()) {
+                throw new UserNotFoundException("User with email " + lastUsersAdded.get(i).getEmail() + " does not exist in database.");
+            }
+            User user = getUserByEmail(users, lastUsersAdded.get(i).getEmail()).get();
 
             if (user.getRoles().size() > 1) {
                 addRole(Role.ADMIN.toString(), lastUsersAdded.get(i));
@@ -136,9 +133,6 @@ public class UserRepository {
             }
         }
     }
-
-
-
 
 
     private static void addToBatch(PreparedStatement userStatement, User user) {
@@ -182,7 +176,6 @@ public class UserRepository {
 
     public void addOrdersToUser(User user) throws SQLException {
         Connection connection = connectionManager.getConnection();
-
         PreparedStatement orderStatement = connection.prepareStatement(INSERT_ORDERS);
 
         List<User> users = findLastUsersAdded(2);
@@ -195,7 +188,6 @@ public class UserRepository {
 
         for(int i = 0; i < user.getOrders().size(); i++){
             addOrder(user.getOrders().get(i), aaa, orderStatement);
-            System.out.println("comanda" + user.getOrders().get(i) + " pt userul " + aaa.getEmail());
             orderStatement.addBatch();
         }
         orderStatement.executeBatch();
