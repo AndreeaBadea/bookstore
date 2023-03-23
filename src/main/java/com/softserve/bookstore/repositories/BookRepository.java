@@ -68,7 +68,13 @@ public class BookRepository {
         Connection connection = connectionManager.getConnection();
         PreparedStatement authorStatement = connection.prepareStatement(SELECT_LAST_AUTHORS);
         ResultSet resultSet = authorStatement.executeQuery();
+
         List<Author> authors = new ArrayList<>();
+
+        return getAuthors(resultSet, authors);
+    }
+
+    private static List<Author> getAuthors(ResultSet resultSet, List<Author> authors) throws SQLException {
         while(resultSet.next()){
             int authorId = resultSet.getInt("id_author");
             String firstName = resultSet.getString("first_name");
@@ -77,11 +83,11 @@ public class BookRepository {
             authors.add(author);
         }
         Collections.reverse(authors);
-        return  authors;
+        return authors;
     }
 
 
-      private static void addToBatch(PreparedStatement statement, Author author) {
+    private static void addToBatch(PreparedStatement statement, Author author) {
 
         try {
 
@@ -94,48 +100,53 @@ public class BookRepository {
     }
 
 
-    public void addAuthors(List<Author> authors) throws SQLException{
+    public void addAuthors(List<Author> authors) throws SQLException {
         Connection con = connectionManager.getConnection();
         PreparedStatement statement = con.prepareStatement(QUERY_AUTHORS);
 
         authors.forEach(author -> {
-            addToBatch(statement,author);
+            addToBatch(statement, author);
         });
         statement.executeBatch();
     }
 
 
-
-
-    public void addBook( List<Book>bookList) throws SQLException {
+    public void addBook(List<Book> bookList) throws SQLException {
 
         Connection con = connectionManager.getConnection();
-
         PreparedStatement bookStatement = con.prepareStatement(INSERT_SQL);
-
         List<Author> authorsListFromFile = new ArrayList<>();
 
+        addingAuthorsFromList(bookList, authorsListFromFile);
+
+        addAuthors(authorsListFromFile);
+
+        List<Author> lastAuthorsAdded = findLastAuthorsAdded(3);
+
+        addingBooksAndAuthorId(bookList, bookStatement, lastAuthorsAdded);
+        bookStatement.executeBatch();
+    }
+
+    private void addingBooksAndAuthorId(List<Book> bookList, PreparedStatement bookStatement, List<Author> lastAuthorsAdded) throws SQLException {
+        for (int i = 0; i < lastAuthorsAdded.size(); i++) {
+            bookStatement.setString(1, bookList.get(i).getTitle());
+            Author author = getAuthorByName(lastAuthorsAdded,
+                    bookList.get(i).getAuthor().getFirstName(),
+                    bookList.get(i).getAuthor().getLastName());
+
+            bookStatement.setInt(2, author.getIdAuthor());
+            bookStatement.setString(3, String.valueOf(bookList.get(i).getGenre()));
+            bookStatement.setFloat(4, bookList.get(i).getPrice());
+            bookStatement.addBatch();
+        }
+    }
+
+    private static void addingAuthorsFromList(List<Book> bookList, List<Author> authorsListFromFile) {
         for (Book book : bookList) {
             String firstName = book.getAuthor().getFirstName();
             String lastName = book.getAuthor().getLastName();
             authorsListFromFile.add(new Author(firstName, lastName));
         }
-
-            addAuthors(authorsListFromFile);
-            List<Author> lastAuthorsAdded = findLastAuthorsAdded(3);
-
-            for(int i = 0; i < lastAuthorsAdded.size(); i++){
-                bookStatement.setString(1, bookList.get(i).getTitle());
-                Author author = getAuthorByName(lastAuthorsAdded,
-                        bookList.get(i).getAuthor().getFirstName(),
-                        bookList.get(i).getAuthor().getLastName());
-
-                bookStatement.setInt(2, author.getIdAuthor());
-                bookStatement.setString(3, String.valueOf(bookList.get(i).getGenre()));
-                bookStatement.setFloat(4, bookList.get(i).getPrice());
-                bookStatement.addBatch();
-            }
-            bookStatement.executeBatch();
     }
 
 }
