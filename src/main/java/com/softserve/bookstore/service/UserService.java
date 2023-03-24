@@ -1,6 +1,5 @@
 package com.softserve.bookstore.service;
 
-import com.mysql.cj.log.Log;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.models.User;
 import com.softserve.bookstore.repositories.UserRepository;
@@ -26,7 +25,7 @@ public class UserService {
 
     public void addUser(String fileName) throws SQLException, IOException, UserNotFoundException {
         List<User> users = getAllUsersFromFile(fileName);
-        userRepository.addUsers(users);
+        userRepository.add(users);
         Logger.info("Users successfully added to the database.");
     }
 
