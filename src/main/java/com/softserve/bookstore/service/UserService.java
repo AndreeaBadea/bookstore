@@ -1,5 +1,6 @@
 package com.softserve.bookstore.service;
 
+import com.softserve.bookstore.data.ManageUserData;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.models.User;
 import com.softserve.bookstore.repositories.UserRepository;
@@ -15,17 +16,19 @@ import java.util.List;
 public class UserService {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
+    @Autowired
+    private ManageUserData manageUserData;
 
     public List<User> getAllUsersFromFile(String fileName) throws IOException {
-        List<User> users = userRepository.findAllFromFile(fileName);
+        List<User> users = manageUserData.readDataFromFile(fileName);
         Logger.info("All users were retrived from provided file.");
         return users;
     }
 
     public void addUser(String fileName) throws SQLException, IOException, UserNotFoundException {
         List<User> users = getAllUsersFromFile(fileName);
-        userRepository.add(users);
+        userRepository.addUsers(users);
         Logger.info("Users successfully added to the database.");
     }
 
