@@ -1,6 +1,7 @@
 package com.softserve.bookstore.repositories;
 
 import com.softserve.bookstore.connection.ConnectionManager;
+import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.models.Role;
 import com.softserve.bookstore.models.User;
 import lombok.SneakyThrows;
@@ -81,7 +82,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void add_AddsTwoUsers_Success() throws SQLException {
+    public void add_AddsTwoUsers_Success() throws SQLException, UserNotFoundException {
         when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
         when(mockConnection.prepareStatement(userRepository.INSERT_USERS)).thenReturn(mockPreparedStatement);
         int[] expectedBatchResult = {1, 1};

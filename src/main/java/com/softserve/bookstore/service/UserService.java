@@ -21,7 +21,7 @@ public class UserService {
     private ManageUserData manageUserData;
 
     public List<User> getAllUsersFromFile(String fileName) throws IOException {
-        List<User> users = manageUserData.readDataFromFile(fileName);
+        List<User> users = manageUserData.readUserDataFromFile(fileName);
         Logger.info("All users were retrived from provided file.");
         return users;
     }
