@@ -1,7 +1,6 @@
 package com.softserve.bookstore.repositories;
 
 import com.softserve.bookstore.connection.ConnectionManager;
-import com.softserve.bookstore.data.ManageUserData;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.models.Order;
 import com.softserve.bookstore.models.Role;
@@ -33,7 +32,7 @@ public class UserRepository {
         PreparedStatement userStatement = connection.prepareStatement(SELECT_USERS);
         ResultSet resultSet = userStatement.executeQuery();
         Logger.info("Users were successfully retrived from the database.");
-        return getUsersFromResultSet(resultSet);
+        return UserUtility.getUsersFromResultSet(resultSet);
     }
 
     public List<User> findLastUsersAdded(int numberOfRecords) throws SQLException {
@@ -41,88 +40,67 @@ public class UserRepository {
         PreparedStatement userStatement = connection.prepareStatement(SELECT_LAST_USERS);
         userStatement.setInt(1, numberOfRecords);
         ResultSet resultSet = userStatement.executeQuery();
-        List<User> users = getUsersFromResultSet(resultSet);
+        List<User> users = UserUtility.getUsersFromResultSet(resultSet);
         Collections.reverse(users);
         return users;
     }
 
-    private  void addUserToBatch(PreparedStatement userStatement, User user) {
-        try {
-            userStatement.setString(1, user.getEmail());
-            userStatement.setString(2, user.getPassword());
-            userStatement.addBatch();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    private void addUserToBatch(PreparedStatement userStatement, User user) throws SQLException {
+        userStatement.setString(1, user.getEmail());
+        userStatement.setString(2, user.getPassword());
+        userStatement.addBatch();
     }
 
-    public Optional<User> getUserByEmail(List<User> users, String email){
+    public Optional<User> getUserByEmail(List<User> users, String email) {
         return users.stream()
                 .filter(user -> email.equals(user.getEmail().trim()))
                 .findFirst();
     }
 
-    public void addUsers(List<User> users) throws SQLException{
+    public void addUsers(List<User> users) throws SQLException, UserNotFoundException {
         Connection connection = connectionManager.getConnection();
         PreparedStatement userStatement = connection.prepareStatement(INSERT_USERS);
-        users.forEach(user -> {
+        for (User user : users) {
             addUserToBatch(userStatement, user);
-        });
+        }
         userStatement.executeBatch();
 
         List<User> lastUsersAdded = findLastUsersAdded(users.size());
-        lastUsersAdded.forEach(user -> {
-            try {
-                    addRole(Role.USER.toString(), user);
-                    getUserByEmail(users, user.getEmail())
-                            .orElseThrow(() -> new UserNotFoundException("User with email"));
+        for (User user : lastUsersAdded) {
+            addRole(Role.USER, user);
+            getUserByEmail(users, user.getEmail())
+                    .orElseThrow(() -> new UserNotFoundException("User with email"));
 
-                    User currentUser = getUserByEmail(users, user.getEmail()).get();
+            User currentUser = getUserByEmail(users, user.getEmail()).get();
 
-                    if (currentUser.getRoles().size() > 1) {
-                        addRole(Role.ADMIN.toString(), user);
-                    }
-                    if (currentUser.getOrders().size() > 1) {
-                        addOrdersToUser(currentUser, users.size());
-                    }
-                } catch (UserNotFoundException | SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-    }
-
-
-    private  List<User> getUsersFromResultSet(ResultSet resultSet) throws SQLException {
-        List<User> users = new ArrayList<>();
-        while(resultSet.next()){
-            int userId = resultSet.getInt(User.FIELD_USER_ID);
-            String email = resultSet.getString(User.FIELD_EMAIL).trim();
-            String password = resultSet.getString(User.FIELD_PASSWORD).trim();
-            User user = new User(userId, email, password);
-            users.add(user);
+            if (currentUser.getRoles().size() > 1) {
+                addRole(Role.ADMIN, user);
+            }
+            if (currentUser.getOrders().size() > 1) {
+                addOrdersToUser(currentUser, users.size());
+            }
         }
-        return users;
     }
 
-    private void addRole(String roleName, User user) throws SQLException {
+    private void addRole(Role role, User user) throws SQLException {
         Connection connection = connectionManager.getConnection();
 
-        Map<String, Integer> roleIds = new HashMap<>();
-        roleIds.put(Role.USER.toString(), 1);
-        roleIds.put(Role.ADMIN.toString(), 2);
+        Map<Role, Integer> roleIds = new HashMap<>();
+        roleIds.put(Role.USER, 1);
+        roleIds.put(Role.ADMIN, 2);
 
-        int roleId = Optional.ofNullable(roleIds.get(roleName))
+        int roleId = Optional.ofNullable(roleIds.get(role))
                 .orElseThrow(() -> new IllegalArgumentException("Invalid role name."));
 
         List<Role> roles = new ArrayList<>();
-        roles.add(Role.valueOf(roleName));
+        roles.add(role);
         user.setRoles(roles);
 
         PreparedStatement roleStatement = connection.prepareStatement(INSERT_USERS_ROLES);
         roleStatement.setInt(1, user.getUserId());
         roleStatement.setInt(2, roleId);
         roleStatement.executeUpdate();
-        Logger.info("User " + user.getEmail() + " has now role " + user.getRoles());
+        Logger.info("User {} has now role {}. ", user.getEmail(), user.getRoles());
     }
 
     private void addOrder(Order order, User user, PreparedStatement orderStatement) throws SQLException {
@@ -146,11 +124,27 @@ public class UserRepository {
                 addOrder(order, correspondingUser, orderStatement);
                 orderStatement.addBatch();
             } catch (SQLException e) {
-                throw new RuntimeException();
+                throw new RuntimeException("Exception occured while adding order to user, SQLException : " + e.getMessage());
             }
         });
         orderStatement.executeBatch();
-        Logger.info("Order history was successfully added for user " + user.getEmail());
+        Logger.info("Order history was successfully added for user {}.", user.getEmail());
     }
 
 }
+
+class UserUtility {
+
+    public static List<User> getUsersFromResultSet(ResultSet resultSet) throws SQLException {
+        List<User> users = new ArrayList<>();
+        while(resultSet.next()){
+            int userId = resultSet.getInt(User.FIELD_USER_ID);
+            String email = resultSet.getString(User.FIELD_EMAIL).trim();
+            String password = resultSet.getString(User.FIELD_PASSWORD).trim();
+            User user = new User(userId, email, password);
+            users.add(user);
+        }
+        return users;
+    }
+}
+
