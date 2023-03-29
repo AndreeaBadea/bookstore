@@ -21,7 +21,7 @@ public class UserController {
     private static final String FILE_NAME = "src/main/resources/users";
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsersFromFile() throws IOException {

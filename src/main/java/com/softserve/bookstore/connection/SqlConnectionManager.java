@@ -1,44 +1,24 @@
 package com.softserve.bookstore.connection;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.tinylog.Logger;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 @Component
 public class SqlConnectionManager implements ConnectionManager {
 
-    private Connection connection;
+    @Autowired
+    private final DataSource dataSource;
 
-    private final String url;
-    private final String username;
-    private final String password;
-
-    public SqlConnectionManager(@Value("${spring.datasource.url}") String url,
-                                @Value("${spring.datasource.username}") String username,
-                                @Value("${spring.datasource.password}")String password
-    ) {
-        this.url = url;
-        this.username = username;
-        this.password = password;
-
-
-
-        try{
-            connection = DriverManager.getConnection(url, username, password);
-            Logger.info("Connection established successfully.");
-
-            }catch (SQLException e ){
-                Logger.error("Error connecting to database..");
-                e.printStackTrace();
-        }
+    public SqlConnectionManager(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
-    public Connection getConnection() {
-        return connection;
+    public Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 }
