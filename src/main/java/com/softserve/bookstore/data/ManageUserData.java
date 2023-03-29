@@ -18,7 +18,7 @@ public class ManageUserData {
 
     private List<User> userList = new ArrayList<>();
 
-    public List<User> readDataFromFile(String file) throws IOException {
+    public List<User> readUserDataFromFile(String file) throws IOException {
         try (FileReader fileReader = new FileReader(file);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
 
@@ -46,7 +46,7 @@ public class ManageUserData {
         return userList;
     }
 
-    private List<Order> parseOrders(String ordersString){
+    private List<Order> parseOrders(String ordersString) {
         List<Order> finalOrders = new ArrayList<>();
         List<String> ordersList = Arrays.stream(ordersString.split("(?<=\\}),\\s"))
                 .map(String::new)
@@ -86,7 +86,7 @@ public class ManageUserData {
     }
 
 
-    private List<Role> parseRoles(String rolesString){
+    private List<Role> parseRoles(String rolesString) {
         List<Role> roles = new ArrayList<>();
         String[] roleDetails = rolesString.split(",\\s*");
 

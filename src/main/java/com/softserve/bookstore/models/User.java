@@ -15,6 +15,12 @@ import java.util.List;
 @Getter
 public class User {
 
+    public static final String FIELD_USER_ID = "id_user";
+    public static final String FIELD_EMAIL = "email";
+    public static final String FIELD_PASSWORD = "password";
+    public static final String FIELD_ORDERS = "orders";
+    public static final String FIELD_ROLES = "roles";
+
     @Id
     private int userId;
 
