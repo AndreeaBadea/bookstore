@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.tinylog.Logger;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,8 +29,14 @@ public class UserRepository {
     @Autowired
     private ConnectionManager connectionManager;
 
+    private Connection connection;
+
+    @PostConstruct
+    public void init() throws SQLException {
+        connection = connectionManager.getConnection();
+    }
+
     public List<User> findAll() throws SQLException {
-        Connection connection = connectionManager.getConnection();
         PreparedStatement userStatement = connection.prepareStatement(SELECT_USERS);
         ResultSet resultSet = userStatement.executeQuery();
         Logger.info("Users were successfully retrived from the database.");
@@ -36,7 +44,6 @@ public class UserRepository {
     }
 
     public List<User> findLastUsersAdded(int numberOfRecords) throws SQLException {
-        Connection connection = connectionManager.getConnection();
         PreparedStatement userStatement = connection.prepareStatement(SELECT_LAST_USERS);
         userStatement.setInt(1, numberOfRecords);
         ResultSet resultSet = userStatement.executeQuery();
@@ -58,7 +65,6 @@ public class UserRepository {
     }
 
     public void addUsers(List<User> users) throws SQLException, UserNotFoundException {
-        Connection connection = connectionManager.getConnection();
         PreparedStatement userStatement = connection.prepareStatement(INSERT_USERS);
         for (User user : users) {
             addUserToBatch(userStatement, user);
@@ -83,8 +89,6 @@ public class UserRepository {
     }
 
     private void addRole(Role role, User user) throws SQLException {
-        Connection connection = connectionManager.getConnection();
-
         Map<Role, Integer> roleIds = new HashMap<>();
         roleIds.put(Role.USER, 1);
         roleIds.put(Role.ADMIN, 2);
@@ -110,7 +114,6 @@ public class UserRepository {
     }
 
     private void addOrdersToUser(User user, int numberOfRecords) throws SQLException, UserNotFoundException {
-        Connection connection = connectionManager.getConnection();
         PreparedStatement orderStatement = connection.prepareStatement(INSERT_ORDERS);
 
         List<User> users = findLastUsersAdded(numberOfRecords);
@@ -131,6 +134,12 @@ public class UserRepository {
         Logger.info("Order history was successfully added for user {}.", user.getEmail());
     }
 
+    @PreDestroy
+    public void closeConnection() throws SQLException {
+        if(connection != null){
+            connection.close();
+        }
+    }
 }
 
 class UserUtility {
