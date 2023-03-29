@@ -4,13 +4,23 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
 public class Book {
+    public static final String FIELD_BOOK_ID = "id";
+    public static final String FIELD_TITLE = "title";
+    public static final String FIELD_AUTHOR = "author";
+    public static final String FIELD_FIRSTNAME = "firstname";
+    public static final String FIELD_LASTNAME = "lastname";
+    public static final String FIELD_GENRE = "genre";
+    public static final String FIELD_PRICES = "price";
 
+
+    @Id
     private int idBook;
     private String title;
     private Author author;
