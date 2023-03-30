@@ -3,37 +3,107 @@ package com.softserve.bookstore.repositories;
 
 import com.softserve.bookstore.connection.ConnectionManager;
 import com.softserve.bookstore.data.ReadDataFromBookFile;
+import com.softserve.bookstore.data.utils.AuthorUtility;
+
 import com.softserve.bookstore.models.Author;
 import com.softserve.bookstore.models.Book;
+import com.softserve.bookstore.models.Genre;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
+import org.tinylog.Logger;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
 
 @Repository
 public class BookRepository {
 
+    @Autowired
+    private AuthorRepository authorRepository;
+
+
     public static final String INSERT_SQL = "INSERT INTO books (title,id_author,genre,price) VALUES (?,?,?,?)";
     public static final String QUERY = "SELECT * FROM author WHERE first_name = ? AND last_name = ? ";
-    public static final String QUERY_AUTHORS = "INSERT INTO author( first_name,last_name) VALUES(?,?)";
     public static final String SELECT_LAST_AUTHORS = "SELECT TOP 3 * FROM author ORDER BY id_author DESC";
-
+    public static final String QUERY_AUTHORS = "INSERT INTO author( first_name,last_name) VALUES(?,?)";
+    public static final String SELECT_BOOKS = "SELECT * FROM books";
+    public static final String SELECT_AUTHORS = "SELECT * FROM author";
     @Autowired
     private ReadDataFromBookFile readDataFromBookFile;
 
     @Autowired
-    ConnectionManager connectionManager;
+    private ConnectionManager connectionManager;
 
-
-    public List<Book>findBooks(String fileName) throws IOException {
+    public List<Book> findBooks(String fileName) throws IOException {
         return readDataFromBookFile.readData(fileName);
+    }
+
+    public Optional<Author> getAuthorById(List<Author> authors, int id) {
+        Optional<Author> a = Optional.of(new Author());
+
+        for (Author author : authors) {
+
+            if (author.getIdAuthor() == id) a = Optional.of(author);
+        }
+        return a;
+    }
+
+    private List<Author> getAuthorFromResultsSet(ResultSet resultSet) throws SQLException {
+        List<Author> authorsList = new ArrayList<>();
+
+        while (resultSet.next()) {
+
+            int authorId = resultSet.getInt("id");
+            String firstName = resultSet.getString("firstname");
+            String lastName = resultSet.getString("lastname");
+
+            Author author = new Author(authorId, firstName, lastName);
+            authorsList.add(author);
+        }
+        return authorsList;
+
+    }
+
+    public List<Book> getBookList(ResultSet resultSet) throws SQLException {
+        List<Book> books = new ArrayList<>();
+        List<Author> authors;
+        Connection connection = connectionManager.getConnection();
+        PreparedStatement authorStatement = connection.prepareStatement(SELECT_AUTHORS);
+        ResultSet aut = authorStatement.executeQuery();
+        authors = getAuthorFromResultsSet(aut);
+
+
+        while (resultSet.next()) {
+
+            int bookId = resultSet.getInt("id");
+            String title = resultSet.getString("title");
+            int idAuthor = resultSet.getInt("author");
+            Author author = getAuthorById(authors, idAuthor).get();
+            Genre genre = Genre.valueOf("FICTION");
+            float price = resultSet.getFloat("price");
+
+
+            Book book = new Book(bookId, title, author, genre, price);
+            books.add(book);
+
+        }
+        return books;
+    }
+
+
+    public List<Book> findAll() throws SQLException {
+        Connection connection = connectionManager.getConnection();
+        PreparedStatement bookStatement = connection.prepareStatement(SELECT_BOOKS);
+        ResultSet resultSet = bookStatement.executeQuery();
+        Logger.info("Books were successfully retrived from the database.");
+        return getBookList(resultSet);
     }
 
     public List<Author> findAuthorByName(String firstName, String lastName) throws SQLException {
@@ -53,17 +123,6 @@ public class BookRepository {
         return result;
     }
 
-    //refactor!
-    public Author getAuthorByName(List<Author> authors, String firstName, String lastName){
-        for(Author author : authors){
-            if(firstName.equals(author.getFirstName()) && lastName.equals(author.getLastName())){
-                return author;
-            }
-        }
-        return null;
-    }
-
-
     public List<Author> findLastAuthorsAdded(int numberOfRecords) throws SQLException {
         Connection connection = connectionManager.getConnection();
         PreparedStatement authorStatement = connection.prepareStatement(SELECT_LAST_AUTHORS);
@@ -71,32 +130,7 @@ public class BookRepository {
 
         List<Author> authors = new ArrayList<>();
 
-        return getAuthors(resultSet, authors);
-    }
-
-    private static List<Author> getAuthors(ResultSet resultSet, List<Author> authors) throws SQLException {
-        while(resultSet.next()){
-            int authorId = resultSet.getInt("id_author");
-            String firstName = resultSet.getString("first_name");
-            String lastName = resultSet.getString("last_name");
-            Author author = new Author(authorId, firstName, lastName);
-            authors.add(author);
-        }
-        Collections.reverse(authors);
-        return authors;
-    }
-
-
-    private static void addToBatch(PreparedStatement statement, Author author) {
-
-        try {
-
-            statement.setString(1,author.getFirstName());
-            statement.setString(2,author.getLastName());
-            statement.addBatch();
-        }catch (SQLException e){
-            throw new RuntimeException(e);
-        }
+        return AuthorRepository.AuthorUtilitys.getAuthors(resultSet, authors);
     }
 
 
@@ -104,10 +138,9 @@ public class BookRepository {
         Connection con = connectionManager.getConnection();
         PreparedStatement statement = con.prepareStatement(QUERY_AUTHORS);
 
-        authors.forEach(author -> {
-            addToBatch(statement, author);
-        });
+        authors.forEach(author -> AuthorUtility.addToBatch(statement, author));
         statement.executeBatch();
+
     }
 
 
@@ -117,36 +150,15 @@ public class BookRepository {
         PreparedStatement bookStatement = con.prepareStatement(INSERT_SQL);
         List<Author> authorsListFromFile = new ArrayList<>();
 
-        addingAuthorsFromList(bookList, authorsListFromFile);
+        AuthorRepository.addingAuthorsFromList(bookList, authorsListFromFile);
 
         addAuthors(authorsListFromFile);
 
         List<Author> lastAuthorsAdded = findLastAuthorsAdded(3);
 
-        addingBooksAndAuthorId(bookList, bookStatement, lastAuthorsAdded);
+        authorRepository.addingBooksAndAuthorId(bookList, bookStatement, lastAuthorsAdded);
         bookStatement.executeBatch();
+
+
     }
-
-    private void addingBooksAndAuthorId(List<Book> bookList, PreparedStatement bookStatement, List<Author> lastAuthorsAdded) throws SQLException {
-        for (int i = 0; i < lastAuthorsAdded.size(); i++) {
-            bookStatement.setString(1, bookList.get(i).getTitle());
-            Author author = getAuthorByName(lastAuthorsAdded,
-                    bookList.get(i).getAuthor().getFirstName(),
-                    bookList.get(i).getAuthor().getLastName());
-
-            bookStatement.setInt(2, author.getIdAuthor());
-            bookStatement.setString(3, String.valueOf(bookList.get(i).getGenre()));
-            bookStatement.setFloat(4, bookList.get(i).getPrice());
-            bookStatement.addBatch();
-        }
-    }
-
-    private static void addingAuthorsFromList(List<Book> bookList, List<Author> authorsListFromFile) {
-        for (Book book : bookList) {
-            String firstName = book.getAuthor().getFirstName();
-            String lastName = book.getAuthor().getLastName();
-            authorsListFromFile.add(new Author(firstName, lastName));
-        }
-    }
-
 }
