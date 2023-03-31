@@ -1,5 +1,6 @@
 package com.softserve.bookstore.controllers;
 
+import com.softserve.bookstore.models.Author;
 import com.softserve.bookstore.models.Book;
 import com.softserve.bookstore.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class BookController {
     BookService bookService;
 
 
+
+
     @GetMapping()
     public ResponseEntity<List<Book>> findBook() throws IOException {
         bookService.getBooksFromFile(FILE_NAME);
@@ -33,7 +36,14 @@ public class BookController {
     @PostMapping()
     public ResponseEntity<String> addBook() throws SQLException, IOException {
         bookService.addBook(FILE_NAME);
-        return new ResponseEntity<>("Added Books Succesfull",HttpStatus.CREATED);
+        return new ResponseEntity<>("Added Books Successful",HttpStatus.CREATED);
+    }
+
+
+    @GetMapping("/author")
+    public ResponseEntity<String> findAuthorId() throws SQLException, IOException {
+        bookService.findAuthorById(FILE_NAME);
+        return new ResponseEntity<>("Authors found",HttpStatus.OK);
     }
 
 

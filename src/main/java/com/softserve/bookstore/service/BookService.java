@@ -22,6 +22,15 @@ public class BookService {
     }
 
 
+    public void findAuthorById(String fileName) throws SQLException, IOException {
+        List<Book>books =getBooksFromFile(fileName);
+        bookRepository.findAll();
+    }
+
+
+
+
+
     public void addBook(String fileName) throws IOException, SQLException {
         List<Book>books = getBooksFromFile(fileName);
         bookRepository.addBook(books);
