@@ -11,20 +11,12 @@ public enum Genre {
 
     private final String name;
 
-    Genre(String name){
+    Genre(String name) {
         this.name = name;
-
     }
 
-    public String getGenreName(){
+    public String getGenreName() {
         return name;
     }
-
-//    public static Genre getByUpperCase(String name){
-//        if (name==null||name.isEmpty()){
-//            return null;
-//        }
-//        return Genre.valueOf(name.toUpperCase());
-//    }
 
 }
