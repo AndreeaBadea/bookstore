@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -102,7 +103,7 @@ class BookRepositoryTest {
         when(mockConnection.prepareStatement(BookRepository.SELECT_LAST_AUTHORS)).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.QUERY_AUTHORS)).thenReturn(mockPreparedStatement);
 
-        int[] executeBatchRes = {1,1};
+        int[] executeBatchRes = {1, 1};
 
         when(mockPreparedStatement.executeBatch()).thenReturn(executeBatchRes);
         when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
@@ -128,16 +129,10 @@ class BookRepositoryTest {
         bookRepository.findLastAuthorsAdded(2);
 
         assertNotNull(bookList);
-        assertTrue(bookList.size()  > 0);
-        verify(mockPreparedStatement,times(2)).addBatch();
-        verify(mockPreparedStatement,times(2)).executeBatch();
+        assertTrue(bookList.size() > 0);
+        verify(mockPreparedStatement, times(2)).addBatch();
+        verify(mockPreparedStatement, times(2)).executeBatch();
         verify(mockPreparedStatement, times(2)).executeQuery();
-
-
-
-
-
-
 
 
     }
