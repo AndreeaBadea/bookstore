@@ -10,11 +10,21 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Component
 public class ManageUserData {
+
+    public static final int SPLIT_STRING_LIMIT = 5;
+    public static final String ORDER_ID = "orderId";
+    public static final String DATE = "date";
+    public static final String STATUS = "status";
 
     private List<User> userList = new ArrayList<>();
 
@@ -26,8 +36,8 @@ public class ManageUserData {
              List<Order> orders;
              List<Role> roles;
 
-            while ((line = bufferedReader.readLine()) != null && line.length()!=0) {
-                String[] userDetails = line.split(",(?=[^\\s])", 5);
+            while ((line = bufferedReader.readLine()) != null && line.length() != 0) {
+                String[] userDetails = line.split(",(?=[^\\s])", SPLIT_STRING_LIMIT);
 
                 int id = Integer.parseInt(userDetails[0]);
                 String email = userDetails[1];
@@ -48,11 +58,11 @@ public class ManageUserData {
 
     private List<Order> parseOrders(String ordersString) {
         List<Order> finalOrders = new ArrayList<>();
-        List<String> ordersList = Arrays.stream(ordersString.split("(?<=\\}),\\s"))
+        List<String> ordersList = Arrays.stream(ordersString.split("(?<=),\\s"))
                 .map(String::new)
                 .collect(Collectors.toList());
 
-        for(String order : ordersList){
+        for (String order : ordersList) {
            finalOrders.add(parseOrder(order));
         }
         return finalOrders;
@@ -63,7 +73,7 @@ public class ManageUserData {
 
         if (orderString.startsWith("Order{") && orderString.endsWith("}")) {
             orderString = orderString.substring(6, orderString.length() - 1);
-            String[] orderDetails = orderString.split("\\},\\s*\\{");
+            String[] orderDetails = orderString.split(",\\s*\\{");
 
             for (String orderDetail : orderDetails) {
                 orderDetail = orderDetail.replaceAll("[\\[\\]{}]", "");
@@ -74,10 +84,10 @@ public class ManageUserData {
                     String[] keyValue = attribute.split("=");
                     orderAttributes.put(keyValue[0], keyValue[1]);
                 }
-                int orderId = Integer.parseInt(orderAttributes.get("orderId"));
-                LocalDateTime localDateTime = LocalDateTime.parse(orderAttributes.get("date"));
+                int orderId = Integer.parseInt(orderAttributes.get(ORDER_ID));
+                LocalDateTime localDateTime = LocalDateTime.parse(orderAttributes.get(DATE));
                 java.sql.Date sqlDate = java.sql.Date.valueOf(localDateTime.toLocalDate());
-                Status status = Status.valueOf(orderAttributes.get("status"));
+                Status status = Status.valueOf(orderAttributes.get(STATUS));
 
                 order = new Order(orderId, sqlDate, status);
             }
@@ -90,7 +100,7 @@ public class ManageUserData {
         List<Role> roles = new ArrayList<>();
         String[] roleDetails = rolesString.split(",\\s*");
 
-        for(String roleDetail: roleDetails){
+        for (String roleDetail : roleDetails) {
             roles.add(Role.valueOf(roleDetail));
         }
         return roles;

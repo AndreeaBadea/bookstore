@@ -15,7 +15,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Collections;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.HashMap;
+
 
 @Repository
 public class UserRepository {
@@ -40,14 +46,14 @@ public class UserRepository {
         PreparedStatement userStatement = connection.prepareStatement(SELECT_USERS);
         ResultSet resultSet = userStatement.executeQuery();
         Logger.info("Users were successfully retrived from the database.");
-        return UserUtility.getUsersFromResultSet(resultSet);
+        return UserUtil.getUsersFromResultSet(resultSet);
     }
 
     public List<User> findLastUsersAdded(int numberOfRecords) throws SQLException {
         PreparedStatement userStatement = connection.prepareStatement(SELECT_LAST_USERS);
         userStatement.setInt(1, numberOfRecords);
         ResultSet resultSet = userStatement.executeQuery();
-        List<User> users = UserUtility.getUsersFromResultSet(resultSet);
+        List<User> users = UserUtil.getUsersFromResultSet(resultSet);
         Collections.reverse(users);
         return users;
     }
@@ -136,17 +142,20 @@ public class UserRepository {
 
     @PreDestroy
     public void closeConnection() throws SQLException {
-        if(connection != null){
+        if (connection != null) {
             connection.close();
         }
     }
 }
 
-class UserUtility {
+class UserUtil {
+
+    private UserUtil() {
+    }
 
     public static List<User> getUsersFromResultSet(ResultSet resultSet) throws SQLException {
         List<User> users = new ArrayList<>();
-        while(resultSet.next()){
+        while (resultSet.next()) {
             int userId = resultSet.getInt(User.FIELD_USER_ID);
             String email = resultSet.getString(User.FIELD_EMAIL).trim();
             String password = resultSet.getString(User.FIELD_PASSWORD).trim();
