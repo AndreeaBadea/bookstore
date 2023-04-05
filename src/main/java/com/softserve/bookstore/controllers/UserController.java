@@ -7,11 +7,7 @@ import com.softserve.bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.*;
 import org.tinylog.Logger;
 
 import java.io.IOException;
@@ -27,15 +23,26 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping
+    @GetMapping("/file")
     public ResponseEntity<List<User>> getAllUsersFromFile() throws IOException {
         return ResponseEntity.ok(userService.getAllUsersFromFile(FILE_NAME));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsersFromDatabase() throws SQLException {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @PostMapping
     public ResponseEntity<String> addAllUsers() throws SQLException, IOException, UserNotFoundException {
         userService.addUser(FILE_NAME);
         return new ResponseEntity<>("All users were added to the database.", HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<String> deleteUser(@PathVariable int userId) throws SQLException, UserNotFoundException {
+        userService.deleteUser(userId);
+        return new ResponseEntity<>("User was successfully deleted.", HttpStatus.OK);
     }
 
     @ExceptionHandler({UserNotFoundException.class})

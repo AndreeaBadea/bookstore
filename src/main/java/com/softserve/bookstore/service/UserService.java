@@ -26,10 +26,22 @@ public class UserService {
         return users;
     }
 
+    public List<User> getAllUsers() throws SQLException {
+        List<User> users = userRepository.findAll();
+        System.out.println(users.size());
+        Logger.info("All users were retrived from the database.");
+        return users;
+    }
+
     public void addUser(String fileName) throws SQLException, IOException, UserNotFoundException {
         List<User> users = getAllUsersFromFile(fileName);
         userRepository.addUsers(users);
         Logger.info("Users successfully added to the database.");
+    }
+
+    public void deleteUser(int userId) throws SQLException, UserNotFoundException {
+        int noRowsAffected = userRepository.deleteUserById(userId);
+        Logger.info("Number of rows affected after deletion: {}", noRowsAffected);
     }
 
 }

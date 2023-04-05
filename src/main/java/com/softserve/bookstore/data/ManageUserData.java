@@ -58,7 +58,7 @@ public class ManageUserData {
 
     private List<Order> parseOrders(String ordersString) {
         List<Order> finalOrders = new ArrayList<>();
-        List<String> ordersList = Arrays.stream(ordersString.split("(?<=),\\s"))
+        List<String> ordersList = Arrays.stream(ordersString.split("(?<=\\}),\\s"))
                 .map(String::new)
                 .collect(Collectors.toList());
 
@@ -73,7 +73,7 @@ public class ManageUserData {
 
         if (orderString.startsWith("Order{") && orderString.endsWith("}")) {
             orderString = orderString.substring(6, orderString.length() - 1);
-            String[] orderDetails = orderString.split(",\\s*\\{");
+            String[] orderDetails = orderString.split("\\},\\s*\\{");
 
             for (String orderDetail : orderDetails) {
                 orderDetail = orderDetail.replaceAll("[\\[\\]{}]", "");

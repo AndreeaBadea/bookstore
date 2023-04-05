@@ -7,6 +7,9 @@ import com.softserve.bookstore.models.Role;
 import com.softserve.bookstore.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.tinylog.Logger;
 
 import javax.annotation.PostConstruct;
@@ -26,11 +29,14 @@ import java.util.HashMap;
 @Repository
 public class UserRepository {
 
-    public static final String INSERT_USERS = "INSERT INTO users(email, password) VALUES (?,?)";
     public static final String SELECT_USERS = "SELECT * FROM users";
     public static final String SELECT_LAST_USERS = "SELECT TOP (?) * FROM users ORDER BY id_user DESC ";
+    public static final String INSERT_USERS = "INSERT INTO users(email, password) VALUES (?,?)";
     public static final String INSERT_USERS_ROLES = "INSERT INTO users_roles(id_user, id_role) VALUES(?,?)";
     public static final String INSERT_ORDERS = "INSERT INTO orders(id_user, date, status) VALUES(?,?,?)";
+    public static final String DELETE_USER = "DELETE FROM users WHERE id_user = ?";
+    public static final String DELETE_ROLE = "DELETE FROM users_roles WHERE id_user = ?";
+    public static final String DELETE_ORDER = "DELETE FROM orders WHERE id_user = ?";
 
     @Autowired
     private ConnectionManager connectionManager;
@@ -70,7 +76,11 @@ public class UserRepository {
                 .findFirst();
     }
 
+
+    @Transactional
     public void addUsers(List<User> users) throws SQLException, UserNotFoundException {
+        TransactionStatus status = TransactionAspectSupport.currentTransactionStatus();
+        System.out.println(status + " transaction status.");
         PreparedStatement userStatement = connection.prepareStatement(INSERT_USERS);
         for (User user : users) {
             addUserToBatch(userStatement, user);
@@ -92,8 +102,11 @@ public class UserRepository {
                 addOrdersToUser(currentUser, users.size());
             }
         }
+        TransactionStatus s = TransactionAspectSupport.currentTransactionStatus();
+        System.out.println(s + " transaction status end of method.");
     }
 
+    @Transactional
     private void addRole(Role role, User user) throws SQLException {
         Map<Role, Integer> roleIds = new HashMap<>();
         roleIds.put(Role.USER, 1);
@@ -119,6 +132,7 @@ public class UserRepository {
         orderStatement.setString(3, order.getStatus().toString());
     }
 
+    @Transactional
     private void addOrdersToUser(User user, int numberOfRecords) throws SQLException, UserNotFoundException {
         PreparedStatement orderStatement = connection.prepareStatement(INSERT_ORDERS);
 
@@ -139,6 +153,42 @@ public class UserRepository {
         orderStatement.executeBatch();
         Logger.info("Order history was successfully added for user {}.", user.getEmail());
     }
+
+
+    @Transactional
+    public int deleteUserById(int userId) throws SQLException, UserNotFoundException {
+        findAll().stream()
+                .filter(user -> user.getUserId() == userId)
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException("User does not exist!"));
+
+        deleteUserRoles(userId);
+        Logger.info("All the roles for user id {} was successfully deleted.", userId);
+
+        deleteUserOrders(userId);
+        Logger.info("All the orders for user id {} was successfully deleted.", userId);
+
+        PreparedStatement userStatement = connection.prepareStatement(DELETE_USER);
+        userStatement.setInt(1, userId);
+
+        int affectedRows = userStatement.executeUpdate();
+        Logger.info("User id {} and the information related to this user were successfully deleted.", userId);
+        return affectedRows;
+    }
+
+    private int deleteUserOrders(int userId) throws SQLException {
+        PreparedStatement orderStatement = connection.prepareStatement(DELETE_ORDER);
+        orderStatement.setInt(1, userId);
+        return orderStatement.executeUpdate();
+    }
+
+
+    private int deleteUserRoles(int userId) throws SQLException {
+        PreparedStatement roleStatement = connection.prepareStatement(DELETE_ROLE);
+        roleStatement.setInt(1, userId);
+        return roleStatement.executeUpdate();
+    }
+
 
     @PreDestroy
     public void closeConnection() throws SQLException {
@@ -164,5 +214,6 @@ class UserUtil {
         }
         return users;
     }
+
 }
 
