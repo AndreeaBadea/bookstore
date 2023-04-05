@@ -46,7 +46,6 @@ public class UserRepositoryTest {
     @Test
     @SneakyThrows
     public void findAll_ReturnsTwoUser_Success() {
-        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
         when(mockConnection.prepareStatement(UserRepository.SELECT_USERS)).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
 
@@ -70,7 +69,6 @@ public class UserRepositoryTest {
     @Test
     public void findLastUsers_Returns_Success() throws SQLException {
         List<User> users = List.of(expectedUser1, expectedUser2);
-        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
         when(mockConnection.prepareStatement(UserRepository.SELECT_LAST_USERS)).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
 
@@ -83,7 +81,6 @@ public class UserRepositoryTest {
 
     @Test
     public void add_AddsTwoUsers_Success() throws SQLException, UserNotFoundException {
-        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
         when(mockConnection.prepareStatement(userRepository.INSERT_USERS)).thenReturn(mockPreparedStatement);
         int[] expectedBatchResult = {1, 1};
         when(mockPreparedStatement.executeBatch()).thenReturn(expectedBatchResult);
@@ -109,9 +106,7 @@ public class UserRepositoryTest {
 
     @Test
     public void findAll_ThrowsSqlException_Failure() throws SQLException {
-        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
-
-        doThrow(new SQLException(expectedExceptionMessage)).when(mockConnection).prepareStatement(UserRepository.SELECT_USERS);
+        doThrow (new SQLException(expectedExceptionMessage)).when(mockConnection).prepareStatement(UserRepository.SELECT_USERS);
         Exception actualException = assertThrows(SQLException.class, () -> {
             userRepository.findAll();
         });
