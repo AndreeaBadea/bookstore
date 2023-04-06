@@ -1,6 +1,6 @@
 package com.softserve.bookstore.service;
 
-import com.softserve.bookstore.data.utils.BookUtils;
+import com.softserve.bookstore.data.ReadDataFromBookFile;
 import com.softserve.bookstore.models.Book;
 import com.softserve.bookstore.repositories.BookRepository;
 
@@ -16,11 +16,13 @@ import org.springframework.stereotype.Service;
 public class BookService {
     @Autowired
     private BookRepository bookRepository;
+
+
     @Autowired
-    private BookUtils bookUtils;
+    private ReadDataFromBookFile readDataFromBookFile;
 
     public List<Book> getBooksFromFile(String fileName) throws IOException {
-        return bookUtils.findBooks(fileName);
+        return readDataFromBookFile.readData(fileName);
     }
 
 
@@ -33,7 +35,15 @@ public class BookService {
 
     public void addBook(String fileName) throws IOException, SQLException {
         List<Book> books = getBooksFromFile(fileName);
-        bookRepository.addBook(books);
+        bookRepository.addBooks(books);
+
+    }
+
+    public boolean deleteBooks(int id) throws SQLException {
+
+        return  bookRepository.removeBook(id);
+
+
 
     }
 }

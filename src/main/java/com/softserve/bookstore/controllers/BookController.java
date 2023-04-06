@@ -13,6 +13,7 @@ import org.tinylog.Logger;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/books")
@@ -38,10 +39,19 @@ public class BookController {
     }
 
 
-    @GetMapping("/author")
+    @GetMapping("/authors/{id}")
     public ResponseEntity<String> findAuthorId() throws SQLException, IOException {
         bookService.findAuthorById(FILE_NAME);
         return new ResponseEntity<>("Authors found", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String>deleteBook(@PathVariable int id) throws SQLException {
+        if (bookService.deleteBooks(id)){
+            return ResponseEntity.ok("Book deleted successful");
+        }else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @ExceptionHandler({BookNotFoundException.class})
@@ -56,7 +66,7 @@ public class BookController {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, msg.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({SQLException.class})
+    @ExceptionHandler({IOException.class})
     public ResponseEntity<ErrorResponse> handleIoEx(SQLException msg) {
         Logger.error(" Failed to process the file ", msg);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, msg.getMessage()), HttpStatus.BAD_REQUEST);
