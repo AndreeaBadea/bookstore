@@ -2,13 +2,13 @@ package com.softserve.bookstore.repositories;
 
 
 import com.softserve.bookstore.connection.ConnectionManager;
-import com.softserve.bookstore.data.utils.AuthorUtility;
 import com.softserve.bookstore.exceptions.CustomExceptionAuthor;
 import com.softserve.bookstore.models.Author;
 import com.softserve.bookstore.models.Book;
 import com.softserve.bookstore.models.Genre;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.tinylog.Logger;
 
 import javax.annotation.PostConstruct;
@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.softserve.bookstore.repositories.AuthorRepository.AuthorUtil.addToBatch;
+
 
 @Repository
 public class BookRepository {
@@ -30,11 +32,9 @@ public class BookRepository {
     public static final String QUERY_AUTHORS = "INSERT INTO author( first_name,last_name) VALUES(?,?)";
     public static final String SELECT_BOOKS = "SELECT * FROM books";
     public static final String SELECT_AUTHORS = "SELECT * FROM author";
+    public static final String DELETE_BOOKS = "DELETE FROM books WHERE id = ?";
     @Autowired
     private AuthorRepository authorRepository;
-
-    @Autowired
-    private CustomExceptionAuthor customExceptionAuthor;
     @Autowired
     private ConnectionManager connectionManager;
 
@@ -47,7 +47,7 @@ public class BookRepository {
     }
 
 
-    public Optional<Author> getAuthorById(List<Author> authors, int id) {
+    public static Optional<Author> getAuthorById(List<Author> authors, int id) {
         return authors.stream().filter(author -> id == (author.getIdAuthor()))
                 .findFirst();
     }
@@ -91,7 +91,7 @@ public class BookRepository {
 
         PreparedStatement statement = connection.prepareStatement(QUERY_AUTHORS);
 
-        authors.forEach(author -> AuthorUtility.addToBatch(statement, author));
+        authors.forEach(author -> addToBatch(statement, author));
         statement.executeBatch();
 
     }
@@ -102,60 +102,62 @@ public class BookRepository {
 
         PreparedStatement authorStatement = connection.prepareStatement(SELECT_AUTHORS);
         ResultSet aut = authorStatement.executeQuery();
-        authors = GetAuthor.getAuthorFromResultsSet(aut);
+        authors = AuthorRepository.AuthorUtil.getAuthorFromResultsSet(aut);
 
-        extracted(resultSet, books, authors);
+        BookUtil.addBooksToList(resultSet, books, authors);
         return books;
     }
+//TODO parse the method addbooklist , parsing method for result set
 
-    private void extracted(ResultSet resultSet, List<Book> books, List<Author> authors) throws SQLException {
-        while (resultSet.next()) {
-
-            int bookId = resultSet.getInt("id");
-            String title = resultSet.getString("title");
-            int idAuthor = resultSet.getInt("author");
-            Author author = getAuthorById(authors, idAuthor).orElseThrow(() -> customExceptionAuthor);
-            Genre genre = Genre.valueOf("FICTION");
-            float price = resultSet.getFloat("price");
-
-            Book book = new Book(bookId, title, author, genre, price);
-            books.add(book);
-
-        }
-    }// TODO: move to inner class
-
-
-    public void addBook(List<Book> bookList) throws SQLException {
+    public void addBooks(List<Book> bookList) throws SQLException {
 
         PreparedStatement bookStatement = connection.prepareStatement(INSERT_SQL);
         List<Author> authorsListFromFile = new ArrayList<>();
         AuthorRepository.addingAuthorsFromList(bookList, authorsListFromFile);
 
+
         addAuthors(authorsListFromFile);
         List<Author> lastAuthorsAdded = findLastAuthorsAdded(3);
-        authorRepository.addingBooksAndAuthorId(bookList, bookStatement, lastAuthorsAdded);
+        authorRepository.addAuthorIdsToBooks(bookList, bookStatement, lastAuthorsAdded);
         bookStatement.executeBatch();
 
     }
 
-    static class GetAuthor {
-        private static List<Author> getAuthorFromResultsSet(ResultSet resultSet) throws SQLException {
 
-            List<Author> authorsList = new ArrayList<>();
+    @Transactional
+    public boolean removeBook(int id) throws SQLException {
+        PreparedStatement bookStatement = connection.prepareStatement(DELETE_BOOKS);
+        bookStatement.setInt(1, id);
+        return  bookStatement.executeUpdate() > 0;
 
-            while (resultSet.next()) {
 
-                int authorId = resultSet.getInt("id");
-                String firstName = resultSet.getString("firstname");
-                String lastName = resultSet.getString("lastname");
 
-                Author author = new Author(authorId, firstName, lastName);
-                authorsList.add(author);
-            }
-            return authorsList;
 
-        }
 
 
     }
+
+
+
 }
+ class BookUtil extends BookRepository {
+
+
+     public static void addBooksToList(ResultSet resultSet, List<Book> books, List<Author> authors) throws SQLException {
+
+         while (resultSet.next()) {
+
+             int bookId = resultSet.getInt("id");
+             String title = resultSet.getString("title");
+             int idAuthor = resultSet.getInt("id_author");
+             Author author = getAuthorById(authors, idAuthor).orElseThrow(() -> new
+                     CustomExceptionAuthor("Could not find author!"));
+             Genre genre = Genre.valueOf("FICTION");
+             float price = resultSet.getFloat("price");
+
+             Book book = new Book(bookId, title, author, genre, price);
+             books.add(book);
+
+         }
+     }
+ }

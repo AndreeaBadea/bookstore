@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,7 +124,7 @@ class BookRepositoryTest {
         bookList.add(book);
         bookList.add(bookie2);
 
-        bookRepository.addBook(bookList);
+        bookRepository.addBooks(bookList);
         bookRepository.findLastAuthorsAdded(2);
 
         assertNotNull(bookList);
