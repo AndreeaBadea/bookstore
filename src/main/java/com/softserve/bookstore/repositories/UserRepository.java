@@ -79,8 +79,6 @@ public class UserRepository {
 
     @Transactional
     public void addUsers(List<User> users) throws SQLException, UserNotFoundException {
-        TransactionStatus status = TransactionAspectSupport.currentTransactionStatus();
-        System.out.println(status + " transaction status.");
         PreparedStatement userStatement = connection.prepareStatement(INSERT_USERS);
         for (User user : users) {
             addUserToBatch(userStatement, user);
@@ -102,11 +100,8 @@ public class UserRepository {
                 addOrdersToUser(currentUser, users.size());
             }
         }
-        TransactionStatus s = TransactionAspectSupport.currentTransactionStatus();
-        System.out.println(s + " transaction status end of method.");
     }
 
-    @Transactional
     private void addRole(Role role, User user) throws SQLException {
         Map<Role, Integer> roleIds = new HashMap<>();
         roleIds.put(Role.USER, 1);
@@ -132,7 +127,6 @@ public class UserRepository {
         orderStatement.setString(3, order.getStatus().toString());
     }
 
-    @Transactional
     private void addOrdersToUser(User user, int numberOfRecords) throws SQLException, UserNotFoundException {
         PreparedStatement orderStatement = connection.prepareStatement(INSERT_ORDERS);
 
