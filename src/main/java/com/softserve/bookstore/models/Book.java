@@ -11,11 +11,11 @@ import org.springframework.data.annotation.Id;
 @Setter
 @Getter
 public class Book {
-    public static final String FIELD_BOOK_ID = "id";
+    public static final String FIELD_BOOK_ID = "id_author";
     public static final String FIELD_TITLE = "title";
     public static final String FIELD_AUTHOR = "author";
-    public static final String FIELD_FIRSTNAME = "firstname";
-    public static final String FIELD_LASTNAME = "lastname";
+    public static final String FIELD_FIRSTNAME = "first_name";
+    public static final String FIELD_LASTNAME = "last_name";
     public static final String FIELD_GENRE = "genre";
     public static final String FIELD_PRICES = "price";
 

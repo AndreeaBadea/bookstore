@@ -53,6 +53,7 @@ public class BookRepository {
     }
 
 
+
     public List<Book> findAll() throws SQLException {
         PreparedStatement bookStatement = connection.prepareStatement(SELECT_BOOKS);
         ResultSet resultSet = bookStatement.executeQuery();
@@ -109,6 +110,7 @@ public class BookRepository {
     }
 //TODO parse the method addbooklist , parsing method for result set
 
+    @Transactional
     public void addBooks(List<Book> bookList) throws SQLException {
 
         PreparedStatement bookStatement = connection.prepareStatement(INSERT_SQL);
@@ -130,14 +132,7 @@ public class BookRepository {
         bookStatement.setInt(1, id);
         return  bookStatement.executeUpdate() > 0;
 
-
-
-
-
-
     }
-
-
 
 }
  class BookUtil extends BookRepository {

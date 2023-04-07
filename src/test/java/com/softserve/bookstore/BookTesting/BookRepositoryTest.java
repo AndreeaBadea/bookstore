@@ -13,10 +13,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +52,7 @@ class BookRepositoryTest {
     @SneakyThrows
     public void findAll_ReturnsBooks_Success() {
 
-        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
+//        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
         //mockConnection.prepareStatement("SELECT * from something") // == null
         //when(mockConnection.prepareStatement(any())).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.SELECT_BOOKS)).thenReturn(mockPreparedStatement);
@@ -63,13 +65,14 @@ class BookRepositoryTest {
                 .thenReturn(true)
                 .thenReturn(false);
 
+
         when(mockResultSet.getInt(Book.FIELD_BOOK_ID))
                 .thenReturn(book.getIdBook())
                 .thenReturn(bookie2.getIdBook());
 
         when(mockResultSet.getString(Book.FIELD_FIRSTNAME))
                 .thenReturn(book.getAuthor().getFirstName() + book.getAuthor().getLastName())
-                .thenReturn(bookie2.getAuthor().getLastName() + book.getAuthor().getLastName());
+                .thenReturn(bookie2.getAuthor().getFirstName() + book.getAuthor().getLastName());
 
 
         List<Book> bookList = bookRepository.findAll();
@@ -77,7 +80,7 @@ class BookRepositoryTest {
         bookList.add(bookie2);
 
         verify(mockResultSet, times(4)).next();
-        assertEquals(bookList.size(), 2);
+        assertEquals(2, bookList.size());
 
         Book foundBook = bookList.get(0);
         assertEquals(foundBook.getIdBook(), book.getIdBook());
@@ -97,7 +100,7 @@ class BookRepositoryTest {
     @SneakyThrows
     public void addBook_IfAdded_Success() {
 
-        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
+//        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
         when(mockConnection.prepareStatement(BookRepository.INSERT_SQL)).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.SELECT_LAST_AUTHORS)).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.QUERY_AUTHORS)).thenReturn(mockPreparedStatement);
@@ -112,9 +115,9 @@ class BookRepositoryTest {
                 .thenReturn(true)
                 .thenReturn(false);
 
-        when(mockResultSet.getInt(Book.FIELD_AUTHOR))
-                .thenReturn(book.getAuthor().getIdAuthor())
-                .thenReturn(bookie2.getAuthor().getIdAuthor());
+        when(mockResultSet.getInt(Book.FIELD_BOOK_ID))
+                .thenReturn(book.getIdBook())
+                .thenReturn(bookie2.getIdBook());
 
         when(mockResultSet.getString(Book.FIELD_FIRSTNAME))
                 .thenReturn(book.getAuthor().getFirstName() + book.getAuthor().getLastName())
@@ -135,4 +138,23 @@ class BookRepositoryTest {
 
 
     }
+
+
+    @Test
+    @DisplayName("Delete books Successful")
+    @Transactional
+    void removeBook_IfSuccess() throws SQLException {
+
+        when(mockConnection.prepareStatement(BookRepository.DELETE_BOOKS))
+                .thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate())
+                .thenReturn(1);
+
+        boolean removeBook = bookRepository.removeBook(book.getIdBook());
+        assertTrue(removeBook);
+        assertEquals(1,book.getIdBook());
+        verify(mockPreparedStatement,times(1)).setInt(1,book.getIdBook());
+
+    }
 }
+
