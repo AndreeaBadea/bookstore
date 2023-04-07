@@ -10,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +30,7 @@ public class UserRepositoryTest {
 
     private static final User expectedUser1 = new User(1, "user1@gmail.com", "user1", Collections.emptyList(), Arrays.asList(Role.USER, Role.ADMIN));
     private static final User expectedUser2 = new User(2, "user2@gmail.com", "user2", Collections.emptyList(), List.of(Role.USER));
-    private static List<User> usersToAdd = List.of(expectedUser1, expectedUser2);
+    private static List<User> users = List.of(expectedUser1, expectedUser2);
 
     private final String expectedExceptionMessage = "Expected exception message";
 
@@ -79,25 +81,60 @@ public class UserRepositoryTest {
         assertEquals(users.size(), lastUsersAdded.size());
     }
 
+      @Test
+      @Transactional
+      @Rollback
+      public void deleteUser_Returns_OneAffectedRow() throws SQLException, UserNotFoundException {
+          when(mockConnection.prepareStatement(UserRepository.SELECT_USERS))
+                  .thenReturn(mockPreparedStatement);
+          when(mockPreparedStatement.executeQuery())
+                  .thenReturn(mockResultSet);
+
+          mockResultSet = createMockForResultSet();
+
+          when(mockConnection.prepareStatement(UserRepository.DELETE_ROLE))
+                  .thenReturn(mockPreparedStatement);
+          when(mockPreparedStatement.executeUpdate())
+                  .thenReturn(1);
+
+          when(mockConnection.prepareStatement(UserRepository.DELETE_ORDER))
+                  .thenReturn(mockPreparedStatement);
+          when(mockPreparedStatement.executeUpdate())
+                  .thenReturn(1);
+
+          when(mockConnection.prepareStatement(UserRepository.DELETE_USER))
+                  .thenReturn(mockPreparedStatement);
+          when(mockPreparedStatement.executeUpdate())
+                  .thenReturn(1);
+
+          int rowsAffected = userRepository.deleteUserById(expectedUser1.getUserId());
+
+          verify(mockResultSet, times(3)).next();
+          assertEquals(2, users.size());
+          verify(mockPreparedStatement, times(3)).setInt(1, expectedUser1.getUserId());
+          assertEquals(1, rowsAffected);
+      }
+
     @Test
+    @Transactional
+    @Rollback
     public void add_AddsTwoUsers_Success() throws SQLException, UserNotFoundException {
-        when(mockConnection.prepareStatement(userRepository.INSERT_USERS)).thenReturn(mockPreparedStatement);
+        when(mockConnection.prepareStatement(UserRepository.INSERT_USERS)).thenReturn(mockPreparedStatement);
         int[] expectedBatchResult = {1, 1};
         when(mockPreparedStatement.executeBatch()).thenReturn(expectedBatchResult);
 
-        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
         when(mockConnection.prepareStatement(UserRepository.SELECT_LAST_USERS)).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
         mockResultSet = createMockForResultSet();
 
-        List<User>  lastUsersAdded = userRepository.findLastUsersAdded(usersToAdd.size());
-        userRepository.addUsers(usersToAdd);
+        List<User>  lastUsersAdded = userRepository.findLastUsersAdded(users.size());
+        userRepository.addUsers(users);
 
-        assertEquals(usersToAdd.size(), lastUsersAdded.size());
+        assertEquals(users.size(), lastUsersAdded.size());
 
         verify(mockPreparedStatement, times(2)).addBatch();
         verify(mockPreparedStatement).executeBatch();
-        verify(mockPreparedStatement, times(2)).setInt(1, usersToAdd.size());
+        verify(mockPreparedStatement, times(2)).setInt(1, users.size());
         verify(mockPreparedStatement, times(2)).executeQuery();
         verify(mockResultSet, times(2)).getInt(User.FIELD_USER_ID);
         verify(mockResultSet, times(2)).getString(User.FIELD_EMAIL);
@@ -112,6 +149,28 @@ public class UserRepositoryTest {
         });
         assertEquals(actualException.getMessage(), expectedExceptionMessage);
     }
+
+    @Test
+    public void deleteUser_ThrowsSqlException_Failure() throws SQLException {
+        doThrow (new SQLException(expectedExceptionMessage)).when(mockConnection).prepareStatement(UserRepository.DELETE_USER);
+        Exception actualException = assertThrows(SQLException.class, () -> {
+            userRepository.deleteUserById(expectedUser1.getUserId());
+        });
+        assertEquals(actualException.getMessage(), expectedExceptionMessage);
+    }
+
+    @Test
+    public void deleteUser_ThrowsUserNotFoundException_Failure() throws SQLException {
+        doThrow (new UserNotFoundException(expectedExceptionMessage)).when(mockConnection).prepareStatement(UserRepository.DELETE_USER);
+        Exception actualException = assertThrows(UserNotFoundException.class, () -> {
+            userRepository.deleteUserById(expectedUser1.getUserId());
+        });
+        assertEquals(actualException.getMessage(), expectedExceptionMessage);
+    }
+
+
+
+
 
     public ResultSet  createMockForResultSet() throws SQLException {
         when(mockResultSet.next())
