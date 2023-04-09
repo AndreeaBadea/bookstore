@@ -29,13 +29,18 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsersFromDatabase() throws SQLException {
+    public ResponseEntity<List<User>> getAllUsers() throws SQLException {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/last")
+    public ResponseEntity<List<User>> getLastUsersAdded(@RequestParam int numberOfRecords) throws SQLException {
+        return ResponseEntity.ok(userService.getLastUsersAdded(numberOfRecords));
     }
 
     @PostMapping
     public ResponseEntity<String> addAllUsers() throws SQLException, IOException, UserNotFoundException {
-        userService.addUser(FILE_NAME);
+        userService.addUsers(FILE_NAME);
         return new ResponseEntity<>("All users were added to the database.", HttpStatus.CREATED);
     }
 
@@ -58,7 +63,7 @@ public class UserController {
     }
 
     @ExceptionHandler({IOException.class})
-    public ResponseEntity<ErrorResponse> handleIOExceptions(SQLException exception) {
+    public ResponseEntity<ErrorResponse> handleIOExceptions(IOException exception) {
         Logger.error("Failed to process information from file.", exception);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, exception.getMessage()), HttpStatus.BAD_REQUEST);
     }

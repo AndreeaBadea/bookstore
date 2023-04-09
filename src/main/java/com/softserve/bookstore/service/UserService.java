@@ -28,12 +28,23 @@ public class UserService {
 
     public List<User> getAllUsers() throws SQLException {
         List<User> users = userRepository.findAll();
-        System.out.println(users.size());
         Logger.info("All users were retrived from the database.");
         return users;
     }
 
-    public void addUser(String fileName) throws SQLException, IOException, UserNotFoundException {
+    public List<User> getLastUsersAdded(int numberOfRecords) throws SQLException {
+        List<User> users = userRepository.findLastUsersAdded(numberOfRecords);
+        Logger.info("Last {} users added were retrived from the database", numberOfRecords);
+        return users;
+    }
+
+    public User getUserByEmail(String email) throws SQLException, UserNotFoundException {
+        List<User> users = getAllUsers();
+        return userRepository.getUserByEmail(users, email)
+                .orElseThrow(()-> new UserNotFoundException("User does not exist!"));
+    }
+
+    public void addUsers(String fileName) throws SQLException, IOException, UserNotFoundException {
         List<User> users = getAllUsersFromFile(fileName);
         userRepository.addUsers(users);
         Logger.info("Users successfully added to the database.");
