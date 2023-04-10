@@ -1,5 +1,6 @@
-package com.softserve.bookstore.controllers;
+package com.softserve.bookstore.controller;
 
+import com.softserve.bookstore.controllers.UserController;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.models.Order;
 import com.softserve.bookstore.models.Role;
@@ -35,25 +36,27 @@ public class UserControllerTest {
 
     private static final String FILE_NAME = "src/main/resources/users";
 
-    public static final int NUMBER_OF_RECORDS = 1;
-    public static final String NUMBER_OF_RECORDS_LABEL = "numberOfRecords";
-    public static final String USER_NOT_FOUND_MESSAGE = "Failed to find the requested user.";
-    public static final String SQL_EXCEPTION_MESSAGE = "Failed to execute query.";
+    private static final int NUMBER_OF_RECORDS = 1;
+    private static final String NUMBER_OF_RECORDS_LABEL = "numberOfRecords";
 
-    private static final User firstExpectedUser = new User(1, "user1@gmail.com", "user1",
-            Collections.emptyList(), Arrays.asList(Role.USER, Role.ADMIN));
-    private static final User secondExpectedUser = new User(2, "user2@gmail.com", "user2",
-            Collections.emptyList(), List.of(Role.USER));
+    private static final String USER_NOT_FOUND_MESSAGE = "Failed to find the requested user.";
+    private static final String SQL_EXCEPTION_MESSAGE = "Failed to execute query.";
+    private static final String IOEXCEPTION_MESSAGE = "Failed to process information from file.";
+    private static final String USERS_ADDED_SUCCESS_MESSAGE = "All users were added to the database.";
+    private static final String DELETE_USER_SUCCESS_MESSAGE = "User was successfully deleted.";
+
+    private static final User firstExpectedUser = new User(1, "user1@gmail.com", "user1", Collections.emptyList(), Arrays.asList(Role.USER, Role.ADMIN));
+    private static final User secondExpectedUser = new User(2, "user2@gmail.com", "user2", Collections.emptyList(), List.of(Role.USER));
     private static final List<User> users = List.of(firstExpectedUser, secondExpectedUser);
 
-    private static final Order firstOrder = new Order(1, Date.valueOf("2023-03-16"), Status.IN_PROCESS);
-    private static final Order secondOrder = new Order(2, Date.valueOf("2023-03-16"), Status.COMPLETED);
-    private static final List<Order> orders = List.of(firstOrder, secondOrder);
+    private static final List<Order> orders = List.of(
+            new Order(1, Date.valueOf("2023-03-16"), Status.IN_PROCESS),
+            new Order(2, Date.valueOf("2023-03-16"), Status.COMPLETED)
+    );
 
-    private static final User firstExpectedUserFromFile = new User(1, "andrei@gmail.com", "13e314",
-            orders, Arrays.asList(Role.USER, Role.ADMIN));
-    private static final List<User> usersFromFile = List.of(firstExpectedUserFromFile);
-    public static final String IOEXCEPTION_MESSAGE = "Failed to process information from file.";
+    private static final List<User> usersFromFile = List.of(
+            new User(1, "andrei@gmail.com", "13e314", orders, Arrays.asList(Role.USER, Role.ADMIN))
+    );
 
     @MockBean
     private UserService userService;
@@ -116,7 +119,7 @@ public class UserControllerTest {
         verify(userService, times(1)).addUsers(FILE_NAME);
 
         String content = mvcResult.getResponse().getContentAsString();
-        assertEquals(content, "All users were added to the database.");
+        assertEquals(content, USERS_ADDED_SUCCESS_MESSAGE);
     }
 
     @Test
@@ -142,7 +145,7 @@ public class UserControllerTest {
         verify(userService, times(1)).deleteUser(1);
 
         String content = mvcResult.getResponse().getContentAsString();
-        assertEquals(content, "User was successfully deleted.");
+        assertEquals(content, DELETE_USER_SUCCESS_MESSAGE);
     }
 
     @Test
