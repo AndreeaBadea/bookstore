@@ -38,10 +38,16 @@ public class UserController {
         return ResponseEntity.ok(userService.getLastUsersAdded(numberOfRecords));
     }
 
-    @PostMapping
+    @PostMapping("/file")
     public ResponseEntity<String> addAllUsers() throws SQLException, IOException, UserNotFoundException {
         userService.addUsers(FILE_NAME);
         return new ResponseEntity<>("All users were added to the database.", HttpStatus.CREATED);
+    }
+
+    @PostMapping
+    public ResponseEntity<User> addUser(@RequestBody User user) throws SQLException {
+        userService.addUser(user);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{userId}")

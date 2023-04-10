@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.softserve.bookstore.models.Role.USER;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(UserController.class)
-public class UserControllerTest {
+public class UserControllerTest extends BaseControllerTest<User> {
 
     private static final String FILE_NAME = "src/main/resources/users";
 
@@ -55,16 +57,9 @@ public class UserControllerTest {
     );
 
     private static final List<User> usersFromFile = List.of(
-            new User(1, "andrei@gmail.com", "13e314", orders, Arrays.asList(Role.USER, Role.ADMIN))
+            new User(1, "andrei@gmail.com", "13e314", orders, Arrays.asList(USER, Role.ADMIN))
     );
 
-    @MockBean
-    private UserService userService;
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    private MvcResult mvcResult;
 
     @Test
     void getAllUsers_Returns_OK() throws Exception {
@@ -73,6 +68,20 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    void getAllUsers_Fails_SQL_EXCEPTION() throws Exception {
+        doThrow(new SQLException(SQL_EXCEPTION_MESSAGE))
+                .when(userService).getAllUsers();
+        mockMvc.perform(get("/users")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        Exception actualException = assertThrows(SQLException.class, () -> {
+            userService.getAllUsers();
+        });
+        assertEquals(SQL_EXCEPTION_MESSAGE, actualException.getMessage());
     }
 
     @Test
@@ -112,7 +121,7 @@ public class UserControllerTest {
 
     @Test
     void addUsers_Returns_CREATED() throws Exception {
-        mvcResult = mockMvc.perform(post("/users")
+        mvcResult = mockMvc.perform(post("/users/file")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -134,6 +143,19 @@ public class UserControllerTest {
             userService.addUsers(FILE_NAME);
         });
         assertEquals(SQL_EXCEPTION_MESSAGE, actualException.getMessage());
+    }
+
+    @Test
+    void addUser_Returns_CREATED_user() throws Exception {
+        mvcResult = mockMvc.perform(post("/users")
+                        .content(jacksonTester.write(secondExpectedUser).getJson())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.email").value(secondExpectedUser.getEmail()))
+                .andReturn();
+
+       String actualUserJson = mvcResult.getResponse().getContentAsString();
+       assertThat(actualUserJson).isNotEmpty();
     }
 
     @Test
