@@ -12,10 +12,7 @@ import org.tinylog.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 
@@ -75,7 +72,6 @@ public class UserRepository {
             addUserToBatch(userStatement, user);
         }
         userStatement.executeBatch();
-
         List<User> lastUsersAdded = findLastUsersAdded(users.size());
         for (User user : lastUsersAdded) {
             addRole(Role.USER, user);
@@ -95,15 +91,21 @@ public class UserRepository {
 
     @Transactional
     public User addUser(User user) throws SQLException {
-        PreparedStatement userStatement = connection.prepareStatement(INSERT_USER);
+        PreparedStatement userStatement = connection.prepareStatement(INSERT_USER, Statement.RETURN_GENERATED_KEYS);
         userStatement.setString(1, user.getEmail());
         userStatement.setString(2, user.getPassword());
         userStatement.executeUpdate();
-        User lastUserAdded = findLastUsersAdded(1).get(0);
-        for(Role role : user.getRoles()){
-            addRole(role, lastUserAdded);
+
+        ResultSet generatedKeys = userStatement.getGeneratedKeys();
+        if(generatedKeys.next()) {
+            int userId = (int) generatedKeys.getLong(1);
+            user.setUserId(userId);
         }
-        return lastUserAdded;
+
+        for(Role role : user.getRoles()) {
+            addRole(role, user);
+        }
+        return user;
     }
 
     private void addRole(Role role, User user) throws SQLException {
