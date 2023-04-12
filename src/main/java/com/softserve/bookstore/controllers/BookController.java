@@ -13,7 +13,7 @@ import org.tinylog.Logger;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
+
 
 @RestController
 @RequestMapping("/books")
@@ -25,10 +25,9 @@ public class BookController {
     private BookService bookService;
 
 
-    @GetMapping()
-    public ResponseEntity<List<Book>> findBook() throws IOException {
+    @GetMapping("/file")
+    public ResponseEntity<List<Book>> getAlBookFromTxT() throws IOException {
         bookService.getBooksFromFile(FILE_NAME);
-
         return ResponseEntity.ok(bookService.getBooksFromFile(FILE_NAME));
     }
 
@@ -39,10 +38,10 @@ public class BookController {
     }
 
 
-    @GetMapping("/authors/{id}")
-    public ResponseEntity<String> findAuthorId() throws SQLException, IOException {
-        bookService.findAuthorById(FILE_NAME);
-        return new ResponseEntity<>("Authors found", HttpStatus.OK);
+    @GetMapping()
+    public ResponseEntity<List<Book>> findBooks() throws SQLException {
+        List<Book> books = bookService.findAllBooks();
+        return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -54,11 +53,11 @@ public class BookController {
         }
     }
 
-    @ExceptionHandler({BookNotFoundException.class})
-    public ResponseEntity<ErrorResponse> handleBookEx(BookNotFoundException msg) {
-        Logger.error(" Failed to find the Book ", msg);
-        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND, msg.getMessage()), HttpStatus.NOT_FOUND);
-    }
+//    @ExceptionHandler({BookNotFoundException.class})
+//    public ResponseEntity<ErrorResponse> handleBookEx(BookNotFoundException msg) {
+//        Logger.error(" Failed to find the Book ", msg);
+//        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND, msg.getMessage()), HttpStatus.NOT_FOUND);
+//    }
 
     @ExceptionHandler({SQLException.class})
     public ResponseEntity<ErrorResponse> handleSQlEx(SQLException msg) {
@@ -67,7 +66,7 @@ public class BookController {
     }
 
     @ExceptionHandler({IOException.class})
-    public ResponseEntity<ErrorResponse> handleIoEx(SQLException msg) {
+    public ResponseEntity<ErrorResponse> handleIoEx(IOException msg) {
         Logger.error(" Failed to process the file ", msg);
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.BAD_REQUEST, msg.getMessage()), HttpStatus.BAD_REQUEST);
     }

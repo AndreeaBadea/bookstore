@@ -26,9 +26,9 @@ public class BookService {
     }
 
 
-    public void findAuthorById(String fileName) throws SQLException, IOException {
-        List<Book> books = getBooksFromFile(fileName);
-        bookRepository.findAll();
+    public List<Book> findAllBooks() throws SQLException {
+        return bookRepository.findAll();
+
 
     }
 

@@ -52,9 +52,6 @@ class BookRepositoryTest {
     @SneakyThrows
     public void findAll_ReturnsBooks_Success() {
 
-//        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
-        //mockConnection.prepareStatement("SELECT * from something") // == null
-        //when(mockConnection.prepareStatement(any())).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.SELECT_BOOKS)).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.SELECT_AUTHORS)).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery())
