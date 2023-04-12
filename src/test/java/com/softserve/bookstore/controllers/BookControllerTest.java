@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BookControllerTest extends BaseControllerTest<Book> {
 
     private static final String FILE_NAME = "src/main/resources/books";
+
     @MockBean
     BookService bookService;
 
