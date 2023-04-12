@@ -7,23 +7,13 @@ import com.softserve.bookstore.models.Role;
 import com.softserve.bookstore.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.tinylog.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Collections;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.HashMap;
+import java.sql.*;
+import java.util.*;
 
 
 @Repository
@@ -31,7 +21,7 @@ public class UserRepository {
 
     public static final String SELECT_USERS = "SELECT * FROM users";
     public static final String SELECT_LAST_USERS = "SELECT TOP (?) * FROM users ORDER BY id_user DESC ";
-    public static final String INSERT_USERS = "INSERT INTO users(email, password) VALUES (?,?)";
+    public static final String INSERT_USER = "INSERT INTO users(email, password) VALUES (?,?)";
     public static final String INSERT_USERS_ROLES = "INSERT INTO users_roles(id_user, id_role) VALUES(?,?)";
     public static final String INSERT_ORDERS = "INSERT INTO orders(id_user, date, status) VALUES(?,?,?)";
     public static final String DELETE_USER = "DELETE FROM users WHERE id_user = ?";
@@ -51,7 +41,6 @@ public class UserRepository {
     public List<User> findAll() throws SQLException {
         PreparedStatement userStatement = connection.prepareStatement(SELECT_USERS);
         ResultSet resultSet = userStatement.executeQuery();
-        Logger.info("Users were successfully retrived from the database.");
         return UserUtil.getUsersFromResultSet(resultSet);
     }
 
@@ -76,20 +65,18 @@ public class UserRepository {
                 .findFirst();
     }
 
-
     @Transactional
     public void addUsers(List<User> users) throws SQLException, UserNotFoundException {
-        PreparedStatement userStatement = connection.prepareStatement(INSERT_USERS);
+        PreparedStatement userStatement = connection.prepareStatement(INSERT_USER);
         for (User user : users) {
             addUserToBatch(userStatement, user);
         }
         userStatement.executeBatch();
-
         List<User> lastUsersAdded = findLastUsersAdded(users.size());
         for (User user : lastUsersAdded) {
             addRole(Role.USER, user);
             getUserByEmail(users, user.getEmail())
-                    .orElseThrow(() -> new UserNotFoundException("User with email"));
+                    .orElseThrow(() -> new UserNotFoundException("User with this email does not exist!"));
 
             User currentUser = getUserByEmail(users, user.getEmail()).get();
 
@@ -100,6 +87,25 @@ public class UserRepository {
                 addOrdersToUser(currentUser, users.size());
             }
         }
+    }
+
+    @Transactional
+    public User addUser(User user) throws SQLException {
+        PreparedStatement userStatement = connection.prepareStatement(INSERT_USER, Statement.RETURN_GENERATED_KEYS);
+        userStatement.setString(1, user.getEmail());
+        userStatement.setString(2, user.getPassword());
+        userStatement.executeUpdate();
+
+        ResultSet generatedKeys = userStatement.getGeneratedKeys();
+        if(generatedKeys.next()) {
+            int userId = (int) generatedKeys.getLong(1);
+            user.setUserId(userId);
+        }
+
+        for(Role role : user.getRoles()) {
+            addRole(role, user);
+        }
+        return user;
     }
 
     private void addRole(Role role, User user) throws SQLException {

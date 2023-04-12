@@ -119,7 +119,7 @@ public class UserRepositoryTest {
     @Transactional
     @Rollback
     public void add_AddsTwoUsers_Success() throws SQLException, UserNotFoundException {
-        when(mockConnection.prepareStatement(UserRepository.INSERT_USERS)).thenReturn(mockPreparedStatement);
+        when(mockConnection.prepareStatement(UserRepository.INSERT_USER)).thenReturn(mockPreparedStatement);
         int[] expectedBatchResult = {1, 1};
         when(mockPreparedStatement.executeBatch()).thenReturn(expectedBatchResult);
 
