@@ -1,6 +1,4 @@
-package com.softserve.bookstore.controller;
-
-import com.softserve.bookstore.controllers.UserController;
+package com.softserve.bookstore.controllers;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.models.Order;
 import com.softserve.bookstore.models.Role;
@@ -8,12 +6,8 @@ import com.softserve.bookstore.models.Status;
 import com.softserve.bookstore.models.User;
 import com.softserve.bookstore.service.UserService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -33,7 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@WebMvcTest(UserController.class)
 public class UserControllerTest extends BaseControllerTest<User> {
 
     private static final String FILE_NAME = "src/main/resources/users";
@@ -50,6 +43,9 @@ public class UserControllerTest extends BaseControllerTest<User> {
     private static final User firstExpectedUser = new User(1, "user1@gmail.com", "user1", Collections.emptyList(), Arrays.asList(Role.USER, Role.ADMIN));
     private static final User secondExpectedUser = new User(2, "user2@gmail.com", "user2", Collections.emptyList(), List.of(Role.USER));
     private static final List<User> users = List.of(firstExpectedUser, secondExpectedUser);
+
+    @MockBean
+    private UserService userService;
 
     private static final List<Order> orders = List.of(
             new Order(1, Date.valueOf("2023-03-16"), Status.IN_PROCESS),
