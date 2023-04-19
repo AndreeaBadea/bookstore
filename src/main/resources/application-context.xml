@@ -1,0 +1,10 @@
+<!-- Configure the MessageDispatcherServlet -->
+<bean id="servlet" class="org.springframework.ws.transport.http.MessageDispatcherServlet">
+    <property name="transformWsdlLocations" value="true" />
+</bean>
+
+        <!-- Map requests to the MessageDispatcherServlet -->
+<servlet-mapping>
+<servlet-name>messageDispatcherServlet</servlet-name>
+<url-pattern>/soap/*</url-pattern>
+</servlet-mapping>

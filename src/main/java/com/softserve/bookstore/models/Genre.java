@@ -1,5 +1,8 @@
 package com.softserve.bookstore.models;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "Genre")
 public enum Genre {
 
     FICTION("Fiction"),

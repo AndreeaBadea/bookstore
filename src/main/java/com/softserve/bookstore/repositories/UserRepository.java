@@ -59,6 +59,12 @@ public class UserRepository {
         userStatement.addBatch();
     }
 
+    public Optional<User> getUserById(int userId) throws SQLException {
+        return findAll().stream()
+                .filter(user -> userId == user.getUserId())
+                .findFirst();
+    }
+
     public Optional<User> getUserByEmail(List<User> users, String email) {
         return users.stream()
                 .filter(user -> email.equals(user.getEmail().trim()))
