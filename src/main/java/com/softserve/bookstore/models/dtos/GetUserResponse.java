@@ -4,8 +4,8 @@ package com.softserve.bookstore.models.dtos;
 import javax.xml.bind.annotation.*;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "GetUserResponse", propOrder = "userDto")
-@XmlRootElement
+@XmlType(name = "", propOrder = "userDto")
+@XmlRootElement(name = "getUserResponse", namespace = "http://localhost:8080/users")
 public class GetUserResponse {
 
     @XmlElement(required = true)

@@ -12,12 +12,14 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@XmlRootElement(name = "UserDto")
+@XmlRootElement(name = "userDto", namespace = "http://localhost:8080/users")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserDto {
 
+    @XmlElement(required = true)
     private int userId;
 
+    @XmlElement(required = true)
     private String email;
 
     @XmlElementWrapper(name = "roles")

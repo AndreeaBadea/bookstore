@@ -1,0 +1,123 @@
+<!--<?xml version="1.0" encoding="UTF-8" standalone="no"?>-->
+<!--<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"-->
+<!--                  xmlns:sch="http://bookstore/users"-->
+<!--                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"-->
+<!--                  xmlns:tns="http://bookstore/users"-->
+<!--                  xmlns:user="http://bookstore/users"-->
+<!--                  targetNamespace="http://bookstore/users">-->
+<!--  <wsdl:types>-->
+<!--    <xs:schema xmlns:user="http://bookstore/users" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://bookstore/users">-->
+
+<!--    <xs:element name="getUserRequest">-->
+<!--        <xs:complexType>-->
+<!--            <xs:sequence>-->
+<!--                <xs:element name="id" type="xs:int"/>-->
+<!--            </xs:sequence>-->
+<!--        </xs:complexType>-->
+<!--    </xs:element>-->
+
+<!--    <xs:element name="getUserResponse">-->
+<!--        <xs:complexType>-->
+<!--            <xs:sequence>-->
+<!--                <xs:element name="userDto" type="tns:userDto"/>-->
+<!--            </xs:sequence>-->
+<!--        </xs:complexType>-->
+<!--    </xs:element>-->
+
+<!--    <xs:complexType name="userDto">-->
+<!--        <xs:sequence>-->
+<!--            <xs:element name="userId" type="xs:int"/>-->
+<!--            <xs:element name="email" type="xs:string"/>-->
+<!--            <xs:element maxOccurs="unbounded" minOccurs="0" name="orders" type="tns:order"/>-->
+<!--            <xs:element name="roles" type="tns:role"/>-->
+<!--        </xs:sequence>-->
+<!--    </xs:complexType>-->
+
+<!--    <xs:complexType name="order">-->
+<!--        <xs:sequence>-->
+<!--            <xs:element name="orderId" type="xs:int"/>-->
+<!--            <xs:element name="date" type="xs:date"/>-->
+<!--            <xs:element maxOccurs="unbounded" minOccurs="0" name="books" type="tns:book"/>-->
+<!--            <xs:element name="status" type="tns:status"/>-->
+<!--        </xs:sequence>-->
+<!--    </xs:complexType>-->
+
+<!--    <xs:complexType name="book">-->
+<!--        <xs:sequence>-->
+<!--            <xs:element name="idBook" type="xs:int"/>-->
+<!--            <xs:element name="title" type="xs:string"/>-->
+<!--            <xs:element name="author" type="tns:author"/>-->
+<!--            <xs:element name="genre" type="tns:genre"/>-->
+<!--            <xs:element name="price" type="xs:float"/>-->
+<!--        </xs:sequence>-->
+<!--    </xs:complexType>-->
+
+<!--    <xs:complexType name="author">-->
+<!--        <xs:sequence>-->
+<!--            <xs:element name="idAuthor" type="xs:int"/>-->
+<!--            <xs:element name="firstName" type="xs:string"/>-->
+<!--            <xs:element name="lastName" type="xs:string"/>-->
+<!--        </xs:sequence>-->
+<!--    </xs:complexType>-->
+
+<!--    <xs:simpleType name="genre">-->
+<!--        <xs:restriction base="xs:string">-->
+<!--            <xs:enumeration value="FICTION"/>-->
+<!--            <xs:enumeration value="DRAMA"/>-->
+<!--            <xs:enumeration value="ROMANCE"/>-->
+<!--            <xs:enumeration value="BIOGRAPHY"/>-->
+<!--            <xs:enumeration value="HORROR"/>-->
+<!--        </xs:restriction>-->
+<!--    </xs:simpleType>-->
+
+<!--    <xs:simpleType name="status">-->
+<!--        <xs:restriction base="xs:string">-->
+<!--            <xs:enumeration value="PENDING"/>-->
+<!--            <xs:enumeration value="IN_PROCESS"/>-->
+<!--            <xs:enumeration value="COMPLETED"/>-->
+<!--        </xs:restriction>-->
+<!--    </xs:simpleType>-->
+
+<!--    <xs:simpleType name="role">-->
+<!--        <xs:restriction base="xs:string">-->
+<!--            <xs:enumeration value="USER"/>-->
+<!--            <xs:enumeration value="ADMIN"/>-->
+<!--        </xs:restriction>-->
+<!--    </xs:simpleType>-->
+
+<!--</xs:schema>-->
+<!--  </wsdl:types>-->
+<!--  <wsdl:message name="getUserRequest">-->
+<!--    <wsdl:part element="tns:getUserRequest" name="getUserRequest">-->
+<!--    </wsdl:part>-->
+<!--  </wsdl:message>-->
+<!--  <wsdl:message name="getUserResponse">-->
+<!--    <wsdl:part element="tns:getUserResponse" name="getUserResponse">-->
+<!--    </wsdl:part>-->
+<!--  </wsdl:message>-->
+<!--  <wsdl:portType name="UserPort">-->
+<!--    <wsdl:operation name="getUser">-->
+<!--      <wsdl:input message="tns:getUserRequest" name="getUserRequest">-->
+<!--    </wsdl:input>-->
+<!--      <wsdl:output message="tns:getUserResponse" name="getUserResponse">-->
+<!--    </wsdl:output>-->
+<!--    </wsdl:operation>-->
+<!--  </wsdl:portType>-->
+<!--  <wsdl:binding name="UserPortSoap11" type="tns:UserPort">-->
+<!--    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>-->
+<!--    <wsdl:operation name="getUser">-->
+<!--      <soap:operation soapAction=""/>-->
+<!--      <wsdl:input name="getUserRequest">-->
+<!--        <soap:body use="literal"/>-->
+<!--      </wsdl:input>-->
+<!--      <wsdl:output name="getUserResponse">-->
+<!--        <soap:body use="literal"/>-->
+<!--      </wsdl:output>-->
+<!--    </wsdl:operation>-->
+<!--  </wsdl:binding>-->
+<!--  <wsdl:service name="UserPortService">-->
+<!--    <wsdl:port binding="tns:UserPortSoap11" name="UserPortSoap11">-->
+<!--      <soap:address location="http://localhost:8080/soap"/>-->
+<!--    </wsdl:port>-->
+<!--  </wsdl:service>-->
+<!--</wsdl:definitions>-->

@@ -13,6 +13,7 @@ import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
+import javax.xml.bind.JAXBException;
 import java.sql.SQLException;
 
 @Endpoint
@@ -25,11 +26,15 @@ public class UserEndpoint {
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getUserRequest")
     @ResponsePayload
-    public GetUserResponse getUserById(@RequestPayload GetUserRequest request) throws UserNotFoundException, SQLException {
+    public GetUserResponse getUserById(@RequestPayload GetUserRequest request) throws UserNotFoundException, SQLException, JAXBException {
         GetUserResponse response = new GetUserResponse();
         User user = userService.getUserById(request.getUserId());
         UserDto userDto = UserMapper.toUserDto(user);
         response.setUser(userDto);
         return response;
     }
+
+
+
+
 }

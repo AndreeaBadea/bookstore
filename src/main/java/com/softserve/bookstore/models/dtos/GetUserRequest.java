@@ -7,8 +7,8 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "GetUserRequest", propOrder = "userId")
-@XmlRootElement
+@XmlType(name = "", propOrder = "userId")
+@XmlRootElement(name = "getUserRequest", namespace = "http://localhost:8080/users")
 public class GetUserRequest {
 
     @XmlElement(required = true)
