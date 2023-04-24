@@ -1,4 +1,4 @@
-package com.softserve.bookstore.connection;
+package com.softserve.bookstore;
 
 import java.sql.Connection;
 import java.sql.SQLException;

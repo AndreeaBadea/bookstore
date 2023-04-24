@@ -1,7 +1,7 @@
 package com.softserve.bookstore.repositories;
 
 
-import com.softserve.bookstore.connection.ConnectionManager;
+import com.softserve.bookstore.ConnectionManager;
 import com.softserve.bookstore.exceptions.CustomExceptionAuthor;
 import com.softserve.bookstore.models.Author;
 import com.softserve.bookstore.models.Book;

@@ -1,6 +1,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:tns="http://localhost:8080/users"
-           targetNamespace="http://localhost:8080/users"
+           xmlns:tns="http://www.softserve.com/bookstore/generated"
+           targetNamespace="http://www.softserve.com/bookstore/generated"
            elementFormDefault="qualified">
 
     <xs:element name="getUserRequest">
@@ -24,7 +24,7 @@
             <xs:element name="userId" type="xs:int"/>
             <xs:element name="email" type="xs:string"/>
             <xs:element name="orders" type="tns:orderDto" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="roles" type="tns:role"/>
+            <xs:element name="roles" type="tns:role" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 

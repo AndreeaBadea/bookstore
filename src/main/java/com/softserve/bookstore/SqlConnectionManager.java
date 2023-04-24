@@ -1,4 +1,4 @@
-package com.softserve.bookstore.connection;
+package com.softserve.bookstore;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.softserve.bookstore.repositories;
 
-import com.softserve.bookstore.connection.ConnectionManager;
+import com.softserve.bookstore.ConnectionManager;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.models.Order;
 import com.softserve.bookstore.models.Role;

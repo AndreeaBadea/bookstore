@@ -1,10 +1,10 @@
 package com.softserve.bookstore.soap;
 
 import com.softserve.bookstore.exceptions.UserNotFoundException;
+import com.softserve.bookstore.generated.GetUserRequest;
+import com.softserve.bookstore.generated.GetUserResponse;
+import com.softserve.bookstore.generated.UserDto;
 import com.softserve.bookstore.models.User;
-import com.softserve.bookstore.models.dtos.GetUserRequest;
-import com.softserve.bookstore.models.dtos.GetUserResponse;
-import com.softserve.bookstore.models.dtos.UserDto;
 import com.softserve.bookstore.models.dtos.mappers.UserMapper;
 import com.softserve.bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import java.sql.SQLException;
 @Endpoint
 public class UserEndpoint {
 
-    private static final String NAMESPACE_URI = "http://localhost:8080/users";
+    private static final String NAMESPACE_URI = "http://www.softserve.com/bookstore/generated";
 
     @Autowired
     private UserService userService;
@@ -28,9 +28,9 @@ public class UserEndpoint {
     @ResponsePayload
     public GetUserResponse getUserById(@RequestPayload GetUserRequest request) throws UserNotFoundException, SQLException, JAXBException {
         GetUserResponse response = new GetUserResponse();
-        User user = userService.getUserById(request.getUserId());
+        User user = userService.getUserById(request.getId());
         UserDto userDto = UserMapper.toUserDto(user);
-        response.setUser(userDto);
+        response.setUserDto(userDto);
         return response;
     }
 

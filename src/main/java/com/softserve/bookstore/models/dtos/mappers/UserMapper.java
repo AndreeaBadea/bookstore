@@ -1,7 +1,7 @@
 package com.softserve.bookstore.models.dtos.mappers;
 
+import com.softserve.bookstore.generated.UserDto;
 import com.softserve.bookstore.models.User;
-import com.softserve.bookstore.models.dtos.UserDto;
 
 public class UserMapper {
 

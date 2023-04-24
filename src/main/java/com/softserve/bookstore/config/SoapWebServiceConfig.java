@@ -34,7 +34,7 @@ public class SoapWebServiceConfig extends WsConfigurerAdapter {
         DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
         wsdl11Definition.setPortTypeName("UserPort");
         wsdl11Definition.setLocationUri("/soap");
-        wsdl11Definition.setTargetNamespace("http://localhost:8080/users");
+        wsdl11Definition.setTargetNamespace("http://www.softserve.com/bookstore/generated");
         wsdl11Definition.setSchema(userSchema);
         return wsdl11Definition;
     }
