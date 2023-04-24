@@ -1,6 +1,6 @@
 package com.softserve.bookstore.controllers;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
-import com.softserve.bookstore.models.Order;
+import com.softserve.bookstore.models.OrderDto;
 import com.softserve.bookstore.models.Role;
 import com.softserve.bookstore.models.Status;
 import com.softserve.bookstore.models.User;
@@ -47,9 +47,9 @@ public class UserControllerTest extends BaseControllerTest<User> {
     @MockBean
     private UserService userService;
 
-    private static final List<Order> orders = List.of(
-            new Order(1, Date.valueOf("2023-03-16"), Status.IN_PROCESS),
-            new Order(2, Date.valueOf("2023-03-16"), Status.COMPLETED)
+    private static final List<OrderDto> orders = List.of(
+            new OrderDto(1, Date.valueOf("2023-03-16"), Status.IN_PROCESS),
+            new OrderDto(2, Date.valueOf("2023-03-16"), Status.COMPLETED)
     );
 
     private static final List<User> usersFromFile = List.of(

@@ -2,7 +2,7 @@ package com.softserve.bookstore.repositories;
 
 import com.softserve.bookstore.connection.ConnectionManager;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
-import com.softserve.bookstore.models.Order;
+import com.softserve.bookstore.models.OrderDto;
 import com.softserve.bookstore.models.Role;
 import com.softserve.bookstore.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +23,7 @@ public class UserRepository {
     public static final String SELECT_LAST_USERS = "SELECT TOP (?) * FROM users ORDER BY id_user DESC ";
     public static final String INSERT_USER = "INSERT INTO users(email, password) VALUES (?,?)";
     public static final String INSERT_USERS_ROLES = "INSERT INTO users_roles(id_user, id_role) VALUES(?,?)";
+    public static final String SELECT_USERS_ROLES = "SELECT * FROM users_roles WHERE id_user = ?";
     public static final String INSERT_ORDERS = "INSERT INTO orders(id_user, date, status) VALUES(?,?,?)";
     public static final String DELETE_USER = "DELETE FROM users WHERE id_user = ?";
     public static final String DELETE_ROLE = "DELETE FROM users_roles WHERE id_user = ?";
@@ -59,6 +60,22 @@ public class UserRepository {
         userStatement.addBatch();
     }
 
+    public Optional<User> getUserById(int userId) throws SQLException {
+        Optional<User> retrivedUser = findAll().stream()
+                                 .filter(user -> userId == user.getUserId())
+                                 .findFirst();
+
+        PreparedStatement roleStatement = connection.prepareStatement(SELECT_USERS_ROLES);
+        roleStatement.setInt(1, userId);
+        ResultSet resultSet = roleStatement.executeQuery();
+
+        List<Role> roles = UserUtil.getRolesFromResultSet(resultSet);
+        //sa adaug si orders sau sa schimb query-ul cu left join
+        retrivedUser.ifPresent(user -> user.setRoles(roles));
+        return retrivedUser;
+    }
+
+    //sa scap de trim
     public Optional<User> getUserByEmail(List<User> users, String email) {
         return users.stream()
                 .filter(user -> email.equals(user.getEmail().trim()))
@@ -127,7 +144,7 @@ public class UserRepository {
         Logger.info("User {} has now role {}. ", user.getEmail(), user.getRoles());
     }
 
-    private void addOrder(Order order, User user, PreparedStatement orderStatement) throws SQLException {
+    private void addOrder(OrderDto order, User user, PreparedStatement orderStatement) throws SQLException {
         orderStatement.setInt(1, user.getUserId());
         orderStatement.setDate(2, order.getDate());
         orderStatement.setString(3, order.getStatus().toString());
@@ -213,6 +230,19 @@ class UserUtil {
             users.add(user);
         }
         return users;
+    }
+
+    public static List<Role> getRolesFromResultSet(ResultSet resultSet) throws SQLException {
+        Map<Integer, Role> roleIds = new HashMap<>();
+        roleIds.put(1, Role.USER);
+        roleIds.put(2, Role.ADMIN);
+
+        List<Role> roles = new ArrayList<>();
+        while (resultSet.next()){
+            int roleId = resultSet.getInt("id_role");
+            roles.add(roleIds.get(roleId));
+        }
+        return roles;
     }
 
 }

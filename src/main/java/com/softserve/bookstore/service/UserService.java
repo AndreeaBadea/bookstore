@@ -38,6 +38,12 @@ public class UserService {
         return users;
     }
 
+    public User getUserById(int userId) throws SQLException, UserNotFoundException {
+        List<User> users = getAllUsers();
+        return userRepository.getUserById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User does not exist!"));
+    }
+
     public User getUserByEmail(String email) throws SQLException, UserNotFoundException {
         List<User> users = getAllUsers();
         return userRepository.getUserByEmail(users, email)

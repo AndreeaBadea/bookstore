@@ -1,6 +1,4 @@
 package com.softserve.bookstore.controllers;
-
-import com.softserve.bookstore.exceptions.BookNotFoundException;
 import com.softserve.bookstore.models.Book;
 import com.softserve.bookstore.models.ErrorResponse;
 import com.softserve.bookstore.service.BookService;
