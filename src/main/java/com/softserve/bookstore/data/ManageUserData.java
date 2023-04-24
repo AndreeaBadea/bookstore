@@ -1,6 +1,6 @@
 package com.softserve.bookstore.data;
 
-import com.softserve.bookstore.models.Order;
+import com.softserve.bookstore.models.OrderDto;
 import com.softserve.bookstore.models.Role;
 import com.softserve.bookstore.models.Status;
 import com.softserve.bookstore.models.User;
@@ -33,7 +33,7 @@ public class ManageUserData {
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
 
              String line;
-             List<Order> orders;
+             List<OrderDto> orders;
              List<Role> roles;
 
             while ((line = bufferedReader.readLine()) != null && line.length() != 0) {
@@ -56,8 +56,8 @@ public class ManageUserData {
         return userList;
     }
 
-    private List<Order> parseOrders(String ordersString) {
-        List<Order> finalOrders = new ArrayList<>();
+    private List<OrderDto> parseOrders(String ordersString) {
+        List<OrderDto> finalOrders = new ArrayList<>();
         List<String> ordersList = Arrays.stream(ordersString.split("(?<=\\}),\\s"))
                 .map(String::new)
                 .collect(Collectors.toList());
@@ -68,8 +68,8 @@ public class ManageUserData {
         return finalOrders;
     }
 
-    private Order parseOrder(String orderString) {
-        Order order = null;
+    private OrderDto parseOrder(String orderString) {
+        OrderDto order = null;
 
         if (orderString.startsWith("Order{") && orderString.endsWith("}")) {
             orderString = orderString.substring(6, orderString.length() - 1);
@@ -89,7 +89,7 @@ public class ManageUserData {
                 java.sql.Date sqlDate = java.sql.Date.valueOf(localDateTime.toLocalDate());
                 Status status = Status.valueOf(orderAttributes.get(STATUS));
 
-                order = new Order(orderId, sqlDate, status);
+                order = new OrderDto(orderId, sqlDate, status);
             }
         }
         return order;

@@ -1,8 +1,8 @@
 package com.softserve.bookstore.repositories;
 
-import com.softserve.bookstore.ConnectionManager;
+import com.softserve.bookstore.connection.ConnectionManager;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
-import com.softserve.bookstore.models.Order;
+import com.softserve.bookstore.models.OrderDto;
 import com.softserve.bookstore.models.Role;
 import com.softserve.bookstore.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,7 +144,7 @@ public class UserRepository {
         Logger.info("User {} has now role {}. ", user.getEmail(), user.getRoles());
     }
 
-    private void addOrder(Order order, User user, PreparedStatement orderStatement) throws SQLException {
+    private void addOrder(OrderDto order, User user, PreparedStatement orderStatement) throws SQLException {
         orderStatement.setInt(1, user.getUserId());
         orderStatement.setDate(2, order.getDate());
         orderStatement.setString(3, order.getStatus().toString());

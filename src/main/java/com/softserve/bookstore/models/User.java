@@ -28,7 +28,7 @@ public class User {
 
     private String password;
 
-    private List<Order> orders;
+    private List<OrderDto> orders;
 
     private List<Role> roles;
 

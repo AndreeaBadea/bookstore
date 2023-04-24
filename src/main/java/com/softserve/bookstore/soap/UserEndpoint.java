@@ -1,6 +1,7 @@
 package com.softserve.bookstore.soap;
 
 import com.softserve.bookstore.exceptions.UserNotFoundException;
+import com.softserve.bookstore.generated.GetAllUsersResponse;
 import com.softserve.bookstore.generated.GetUserRequest;
 import com.softserve.bookstore.generated.GetUserResponse;
 import com.softserve.bookstore.generated.UserDto;
@@ -15,6 +16,8 @@ import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
 import javax.xml.bind.JAXBException;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Endpoint
 public class UserEndpoint {
@@ -34,7 +37,18 @@ public class UserEndpoint {
         return response;
     }
 
-
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getAllUsersRequest")
+    @ResponsePayload
+    public GetAllUsersResponse getAllUsers() throws SQLException {
+        GetAllUsersResponse response = new GetAllUsersResponse();
+        List<User> users = userService.getAllUsers();
+        List<UserDto> usersDto = users.stream().map(UserMapper::toUserDto).collect(Collectors.toList());
+        usersDto.forEach(System.out::println);
+        response.setUserDtos(usersDto);
+        System.out.println("aaaaaaaaaaaaaa");
+        response.getUserDto().forEach(System.out::println);
+        return response;
+    }
 
 
 }
