@@ -1,5 +1,5 @@
 package com.softserve.bookstore.controllers;
-import com.softserve.bookstore.models.Book;
+import com.softserve.bookstore.generated.Book;
 import com.softserve.bookstore.models.ErrorResponse;
 import com.softserve.bookstore.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;

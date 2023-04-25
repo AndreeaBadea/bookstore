@@ -1,7 +1,7 @@
 package com.softserve.bookstore.repositories;
 
-import com.softserve.bookstore.models.Author;
-import com.softserve.bookstore.models.Book;
+import com.softserve.bookstore.generated.Author;
+import com.softserve.bookstore.generated.Book;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;

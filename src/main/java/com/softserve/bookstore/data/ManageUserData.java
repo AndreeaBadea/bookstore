@@ -1,9 +1,9 @@
 package com.softserve.bookstore.data;
 
-import com.softserve.bookstore.models.OrderDto;
-import com.softserve.bookstore.models.Role;
-import com.softserve.bookstore.models.Status;
-import com.softserve.bookstore.models.User;
+import com.softserve.bookstore.generated.OrderDto;
+import com.softserve.bookstore.generated.Role;
+import com.softserve.bookstore.generated.Status;
+import com.softserve.bookstore.generated.User;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;

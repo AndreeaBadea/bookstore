@@ -2,7 +2,7 @@ package com.softserve.bookstore.service;
 
 import com.softserve.bookstore.data.ManageUserData;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
-import com.softserve.bookstore.models.User;
+import com.softserve.bookstore.generated.User;
 import com.softserve.bookstore.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

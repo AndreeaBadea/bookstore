@@ -8,45 +8,37 @@
 
 package com.softserve.bookstore.generated;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for status.
+ * <p>Java class for role.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
- * &lt;simpleType name="status">
+ * &lt;simpleType name="role">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *     &lt;enumeration value="PENDING"/>
- *     &lt;enumeration value="IN_PROCESS"/>
- *     &lt;enumeration value="COMPLETED"/>
+ *     &lt;enumeration value="USER"/>
+ *     &lt;enumeration value="ADMIN"/>
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
  * 
  */
-@Getter
-@AllArgsConstructor
-@XmlType(name = "status")
+@XmlType(name = "role")
 @XmlEnum
-public enum Status {
+public enum Role {
 
-    PENDING,
-    IN_PROCESS,
-    COMPLETED;
+    USER,
+    ADMIN;
 
     public String value() {
         return name();
     }
 
-    public static Status fromValue(String v) {
+    public static Role fromValue(String v) {
         return valueOf(v);
     }
 

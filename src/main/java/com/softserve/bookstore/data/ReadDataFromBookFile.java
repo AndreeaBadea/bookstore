@@ -1,18 +1,16 @@
 package com.softserve.bookstore.data;
 
-import com.softserve.bookstore.models.Author;
-import com.softserve.bookstore.models.Book;
-import com.softserve.bookstore.models.Genre;
+import com.softserve.bookstore.generated.Author;
+import com.softserve.bookstore.generated.Book;
+import com.softserve.bookstore.generated.Genre;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Component

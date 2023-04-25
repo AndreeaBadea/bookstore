@@ -1,8 +1,9 @@
 package com.softserve.bookstore.controllers;
 
 import com.softserve.bookstore.exceptions.UserNotFoundException;
+import com.softserve.bookstore.generated.User;
+import com.softserve.bookstore.generated.UserDto;
 import com.softserve.bookstore.models.ErrorResponse;
-import com.softserve.bookstore.models.User;
 import com.softserve.bookstore.models.dtos.mappers.UserMapper;
 import com.softserve.bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +35,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-//    @GetMapping("/{userId}")
-//    public ResponseEntity<UserDto> getUserById(@PathVariable int userId) throws UserNotFoundException, SQLException {
-//        UserDto userDto = UserMapper.toUserDto(userService.getUserById(userId));
-//        return ResponseEntity.ok(userDto);
-//    }
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable int userId) throws UserNotFoundException, SQLException {
+        UserDto userDto = UserMapper.toUserDto(userService.getUserById(userId));
+        return ResponseEntity.ok(userDto);
+    }
 
     @GetMapping("/last")
     public ResponseEntity<List<User>> getLastUsersAdded(@RequestParam int numberOfRecords) throws SQLException {

@@ -3,9 +3,9 @@ package com.softserve.bookstore.repositories;
 
 import com.softserve.bookstore.connection.ConnectionManager;
 import com.softserve.bookstore.exceptions.CustomExceptionAuthor;
-import com.softserve.bookstore.models.Author;
-import com.softserve.bookstore.models.Book;
-import com.softserve.bookstore.models.Genre;
+import com.softserve.bookstore.generated.Author;
+import com.softserve.bookstore.generated.Book;
+import com.softserve.bookstore.generated.Genre;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,7 @@ public class BookRepository {
     public static final String QUERY_AUTHORS = "INSERT INTO author( first_name,last_name) VALUES(?,?)";
     public static final String SELECT_BOOKS = "SELECT * FROM books";
     public static final String SELECT_AUTHORS = "SELECT * FROM author";
-    public static final String DELETE_BOOKS = "DELETE FROM books WHERE id = ?";
+    public static final String DELETE_BOOKS = "DELETE FROM books WHERE id_book = ?";
     @Autowired
     private AuthorRepository authorRepository;
     @Autowired

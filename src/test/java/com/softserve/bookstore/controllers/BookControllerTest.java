@@ -1,8 +1,8 @@
 package com.softserve.bookstore.controllers;
 
-import com.softserve.bookstore.models.Author;
-import com.softserve.bookstore.models.Book;
-import com.softserve.bookstore.models.Genre;
+import com.softserve.bookstore.generated.Author;
+import com.softserve.bookstore.generated.Book;
+import com.softserve.bookstore.generated.Genre;
 import com.softserve.bookstore.service.BookService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
