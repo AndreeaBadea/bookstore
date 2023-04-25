@@ -1,9 +1,5 @@
 package com.softserve.bookstore.controllers;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
-import com.softserve.bookstore.models.OrderDto;
-import com.softserve.bookstore.models.Role;
-import com.softserve.bookstore.models.Status;
-import com.softserve.bookstore.models.User;
 import com.softserve.bookstore.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;

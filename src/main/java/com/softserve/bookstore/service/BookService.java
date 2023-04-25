@@ -1,7 +1,7 @@
 package com.softserve.bookstore.service;
 
 import com.softserve.bookstore.data.ReadDataFromBookFile;
-import com.softserve.bookstore.models.Book;
+import com.softserve.bookstore.generated.Book;
 import com.softserve.bookstore.repositories.BookRepository;
 
 import java.io.IOException;

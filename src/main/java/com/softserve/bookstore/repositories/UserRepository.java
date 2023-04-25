@@ -2,9 +2,9 @@ package com.softserve.bookstore.repositories;
 
 import com.softserve.bookstore.connection.ConnectionManager;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
-import com.softserve.bookstore.models.OrderDto;
-import com.softserve.bookstore.models.Role;
-import com.softserve.bookstore.models.User;
+import com.softserve.bookstore.generated.OrderDto;
+import com.softserve.bookstore.generated.Role;
+import com.softserve.bookstore.generated.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;

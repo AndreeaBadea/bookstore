@@ -1,9 +1,6 @@
 package com.softserve.bookstore.BookTesting;
 
 import com.softserve.bookstore.connection.ConnectionManager;
-import com.softserve.bookstore.models.Author;
-import com.softserve.bookstore.models.Book;
-import com.softserve.bookstore.models.Genre;
 import com.softserve.bookstore.repositories.AuthorRepository;
 import com.softserve.bookstore.repositories.BookRepository;
 import lombok.SneakyThrows;

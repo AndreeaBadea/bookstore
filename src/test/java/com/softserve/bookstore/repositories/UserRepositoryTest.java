@@ -2,8 +2,6 @@ package com.softserve.bookstore.repositories;
 
 import com.softserve.bookstore.connection.ConnectionManager;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
-import com.softserve.bookstore.models.Role;
-import com.softserve.bookstore.models.User;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

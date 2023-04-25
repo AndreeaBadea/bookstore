@@ -2,7 +2,6 @@ package com.softserve.bookstore.soap;
 
 import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.generated.*;
-import com.softserve.bookstore.models.User;
 import com.softserve.bookstore.models.dtos.mappers.UserMapper;
 import com.softserve.bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
