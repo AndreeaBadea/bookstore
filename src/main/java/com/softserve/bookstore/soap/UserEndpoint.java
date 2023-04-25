@@ -11,7 +11,6 @@ import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
-import javax.xml.bind.JAXBException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +25,7 @@ public class UserEndpoint {
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getUserRequest")
     @ResponsePayload
-    public GetUserResponse getUserById(@RequestPayload GetUserRequest request) throws UserNotFoundException, SQLException, JAXBException {
+    public GetUserResponse getUserById(@RequestPayload GetUserRequest request) throws UserNotFoundException, SQLException {
         GetUserResponse response = new GetUserResponse();
         User user = userService.getUserById(request.getId());
         UserDto userDto = UserMapper.toUserDto(user);
@@ -48,12 +47,21 @@ public class UserEndpoint {
     @ResponsePayload
     public AddUserResponse addUserResponse(@RequestPayload AddUserRequest request) throws SQLException {
         AddUserResponse response = new AddUserResponse();
-        User userFromRequest = new User (
+        User userFromRequest = new User(
                 request.getUser().getEmail(),
                 request.getUser().getPassword(),
                 request.getUser().getRoles());
         User addedUser = userService.addUser(userFromRequest);
         response.setUserDto(UserMapper.toUserDto(addedUser));
+        return response;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "deleteUserRequest")
+    @ResponsePayload
+    public DeleteUserResponse deleteUserById(@RequestPayload DeleteUserRequest request) throws UserNotFoundException, SQLException {
+        DeleteUserResponse response = new DeleteUserResponse();
+        userService.deleteUser(request.getId());
+        response.setMessage("User was successfully deleted.");
         return response;
     }
 
