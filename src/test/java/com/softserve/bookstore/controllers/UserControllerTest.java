@@ -1,5 +1,9 @@
 package com.softserve.bookstore.controllers;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
+import com.softserve.bookstore.generated.OrderDto;
+import com.softserve.bookstore.generated.Role;
+import com.softserve.bookstore.generated.Status;
+import com.softserve.bookstore.generated.User;
 import com.softserve.bookstore.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -12,7 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.softserve.bookstore.models.Role.USER;
+import static com.softserve.bookstore.generated.Role.USER;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,8 +40,8 @@ public class UserControllerTest extends BaseControllerTest<User> {
     private static final String USERS_ADDED_SUCCESS_MESSAGE = "All users were added to the database.";
     private static final String DELETE_USER_SUCCESS_MESSAGE = "User was successfully deleted.";
 
-    private static final User firstExpectedUser = new User(1, "user1@gmail.com", "user1", Collections.emptyList(), Arrays.asList(Role.USER, Role.ADMIN));
-    private static final User secondExpectedUser = new User(2, "user2@gmail.com", "user2", Collections.emptyList(), List.of(Role.USER));
+    private static final User firstExpectedUser = new User(1, "user1@gmail.com", "user1", Collections.emptyList(), Arrays.asList(USER, Role.ADMIN));
+    private static final User secondExpectedUser = new User(2, "user2@gmail.com", "user2", Collections.emptyList(), List.of(USER));
     private static final List<User> users = List.of(firstExpectedUser, secondExpectedUser);
 
     @MockBean
