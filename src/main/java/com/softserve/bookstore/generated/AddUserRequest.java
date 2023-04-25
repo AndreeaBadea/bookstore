@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="userDto" type="{http://www.softserve.com/bookstore/generated}userDto"/>
+ *         &lt;element name="user" type="{http://www.softserve.com/bookstore/generated}user"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -36,36 +36,36 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "userDto"
+    "user"
 })
-@XmlRootElement(name = "getUserResponse")
-public class GetUserResponse {
+@XmlRootElement(name = "addUserRequest")
+public class AddUserRequest {
 
     @XmlElement(required = true)
-    protected UserDto userDto;
+    protected User user;
 
     /**
-     * Gets the value of the userDto property.
+     * Gets the value of the user property.
      * 
      * @return
      *     possible object is
-     *     {@link UserDto }
+     *     {@link User }
      *     
      */
-    public UserDto getUserDto() {
-        return userDto;
+    public User getUser() {
+        return user;
     }
 
     /**
-     * Sets the value of the userDto property.
+     * Sets the value of the user property.
      * 
      * @param value
      *     allowed object is
-     *     {@link UserDto }
+     *     {@link User }
      *     
      */
-    public void setUserDto(UserDto value) {
-        this.userDto = value;
+    public void setUser(User value) {
+        this.user = value;
     }
 
 }

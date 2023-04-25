@@ -1,10 +1,7 @@
 package com.softserve.bookstore.soap;
 
 import com.softserve.bookstore.exceptions.UserNotFoundException;
-import com.softserve.bookstore.generated.GetAllUsersResponse;
-import com.softserve.bookstore.generated.GetUserRequest;
-import com.softserve.bookstore.generated.GetUserResponse;
-import com.softserve.bookstore.generated.UserDto;
+import com.softserve.bookstore.generated.*;
 import com.softserve.bookstore.models.User;
 import com.softserve.bookstore.models.dtos.mappers.UserMapper;
 import com.softserve.bookstore.service.UserService;
@@ -43,10 +40,20 @@ public class UserEndpoint {
         GetAllUsersResponse response = new GetAllUsersResponse();
         List<User> users = userService.getAllUsers();
         List<UserDto> usersDto = users.stream().map(UserMapper::toUserDto).collect(Collectors.toList());
-        usersDto.forEach(System.out::println);
         response.setUserDtos(usersDto);
-        System.out.println("aaaaaaaaaaaaaa");
-        response.getUserDto().forEach(System.out::println);
+        return response;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "addUserRequest")
+    @ResponsePayload
+    public AddUserResponse addUserResponse(@RequestPayload AddUserRequest request) throws SQLException {
+        AddUserResponse response = new AddUserResponse();
+        User userFromRequest = new User (
+                request.getUser().getEmail(),
+                request.getUser().getPassword(),
+                request.getUser().getRoles());
+        User addedUser = userService.addUser(userFromRequest);
+        response.setUserDto(UserMapper.toUserDto(addedUser));
         return response;
     }
 

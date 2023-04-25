@@ -8,10 +8,9 @@
 
 package com.softserve.bookstore.generated;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -26,7 +25,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="userDto" type="{http://www.softserve.com/bookstore/generated}userDto" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="userDto" type="{http://www.softserve.com/bookstore/generated}userDto"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -37,44 +36,36 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "userDtos"
+    "userDto"
 })
-@XmlRootElement(name = "getAllUsersResponse")
-public class GetAllUsersResponse {
+@XmlRootElement(name = "addUserResponse")
+public class AddUserResponse {
 
-    protected List<UserDto> userDtos;
+    @XmlElement(required = true)
+    protected UserDto userDto;
 
     /**
      * Gets the value of the userDto property.
      * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the userDto property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getUserDto().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link UserDto }
-     * 
-     * 
+     * @return
+     *     possible object is
+     *     {@link UserDto }
+     *     
      */
-    public List<UserDto> getUserDtos() {
-        if (userDtos == null) {
-            userDtos = new ArrayList<UserDto>();
-        }
-        return this.userDtos;
+    public UserDto getUserDto() {
+        return userDto;
     }
 
-
-    public void setUserDtos(List<UserDto> userDtos) {
-        this.userDtos = userDtos;
+    /**
+     * Sets the value of the userDto property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link UserDto }
+     *     
+     */
+    public void setUserDto(UserDto value) {
+        this.userDto = value;
     }
+
 }

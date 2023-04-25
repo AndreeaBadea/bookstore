@@ -3,7 +3,6 @@ package com.softserve.bookstore.controllers;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.models.ErrorResponse;
 import com.softserve.bookstore.models.User;
-import com.softserve.bookstore.models.dtos.mappers.UserMapper;
 import com.softserve.bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

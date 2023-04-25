@@ -16,21 +16,21 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import com.softserve.bookstore.models.OrderDto;
 
 
 /**
- * <p>Java class for userDto complex type.
+ * <p>Java class for user complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="userDto">
+ * &lt;complexType name="user">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="userId" type="{http://www.w3.org/2001/XMLSchema}int"/>
  *         &lt;element name="email" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="password" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="orders" type="{http://www.softserve.com/bookstore/generated}orderDto" maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;element name="roles" type="{http://www.softserve.com/bookstore/generated}role" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
@@ -42,17 +42,20 @@ import com.softserve.bookstore.models.OrderDto;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "userDto", propOrder = {
+@XmlType(name = "user", propOrder = {
     "userId",
     "email",
+    "password",
     "orders",
     "roles"
 })
-public class UserDto {
+public class User {
 
     protected int userId;
     @XmlElement(required = true)
     protected String email;
+    @XmlElement(required = true)
+    protected String password;
     protected List<OrderDto> orders;
     protected List<Role> roles;
 
@@ -94,6 +97,30 @@ public class UserDto {
      */
     public void setEmail(String value) {
         this.email = value;
+    }
+
+    /**
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPassword(String value) {
+        this.password = value;
     }
 
     /**
@@ -154,12 +181,4 @@ public class UserDto {
         return this.roles;
     }
 
-
-    public void setOrders(List<OrderDto> orders) {
-        this.orders = orders;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
-    }
 }
