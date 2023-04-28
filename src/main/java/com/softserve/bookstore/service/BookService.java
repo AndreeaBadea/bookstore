@@ -1,6 +1,7 @@
 package com.softserve.bookstore.service;
 
 import com.softserve.bookstore.data.ReadDataFromBookFile;
+import com.softserve.bookstore.generated.Author;
 import com.softserve.bookstore.generated.Book;
 import com.softserve.bookstore.repositories.BookRepository;
 
@@ -29,7 +30,10 @@ public class BookService {
     public List<Book> findAllBooks() throws SQLException {
         return bookRepository.findAll();
 
+    }
 
+    public Book findBookById(int id) throws SQLException {
+        return bookRepository.getBookById(id);
     }
 
 
@@ -39,11 +43,13 @@ public class BookService {
 
     }
 
-    public boolean deleteBooks(int id) throws SQLException {
+    public Book addBooks(Book book) throws SQLException {
+        return bookRepository.addBookForSoap(book);
+    }
 
+    public boolean deleteBooks(int id) throws SQLException {
         return  bookRepository.removeBook(id);
 
-
-
     }
+
 }

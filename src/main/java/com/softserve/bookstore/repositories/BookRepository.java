@@ -12,10 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.tinylog.Logger;
 
 import javax.annotation.PostConstruct;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +29,8 @@ public class BookRepository {
     public static final String QUERY_AUTHORS = "INSERT INTO author( first_name,last_name) VALUES(?,?)";
     public static final String SELECT_BOOKS = "SELECT * FROM books";
     public static final String SELECT_AUTHORS = "SELECT * FROM author";
-    public static final String DELETE_BOOKS = "DELETE FROM books WHERE id_book = ?";
+    public static final String DELETE_BOOKS = "DELETE FROM books WHERE id = ?";
+    public static final String FIND_BOOK_ID = "SELECT * FROM books WHERE id = ?";
     @Autowired
     private AuthorRepository authorRepository;
     @Autowired
@@ -125,12 +123,78 @@ public class BookRepository {
 
     }
 
+    @Transactional
+    public Author addAuthor(Author author ) throws SQLException{
+       String INSERT_AUTHOR = "INSERT INTO author( first_name,last_name) VALUES(?,?)";
+
+       PreparedStatement authorStatement = connection.prepareStatement(INSERT_AUTHOR);
+       authorStatement.setString(1,author.getFirstName());
+       authorStatement.setString(2, author.getLastName());
+        authorStatement.executeUpdate();
+
+        ResultSet generatedKeys = authorStatement.getGeneratedKeys();
+
+        if (generatedKeys.next()){
+            int id = generatedKeys.getInt(1);
+            author.setIdAuthor(id);
+        }
+        return author;
+    }
+
+
+    @Transactional
+    public Book addBookForSoap (Book book) throws SQLException {
+
+
+        PreparedStatement bookStatement = connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);
+
+        bookStatement.setString(1,book.getTitle());
+        bookStatement.setInt(2,book.getAuthor().getIdAuthor());
+        bookStatement.setString(3,book.getGenre().name());
+        bookStatement.setFloat(4,book.getPrice());
+        bookStatement.executeUpdate();
+
+        ResultSet generatedKeys = bookStatement.getGeneratedKeys();
+
+        if (generatedKeys.next()) {
+            int id = (int) generatedKeys.getLong(1);
+            book.setIdBook(id);
+            System.out.println(book);
+        }
+
+
+        return book;
+
+    }
+
+
+
 
     @Transactional
     public boolean removeBook(int id) throws SQLException {
         PreparedStatement bookStatement = connection.prepareStatement(DELETE_BOOKS);
         bookStatement.setInt(1, id);
         return  bookStatement.executeUpdate() > 0;
+
+    }
+
+    public Book getBookById(int id) throws SQLException {
+        try(PreparedStatement statement = connection.prepareStatement(FIND_BOOK_ID)){
+            statement.setInt(1,id);
+
+            try(ResultSet resultSet = statement.executeQuery()){
+                if (resultSet.next()){
+                    Book book = new Book();
+                    book.setIdBook(resultSet.getInt("id"));
+                    book.setTitle(resultSet.getString("title"));
+                    return book;
+                }else {
+                    return null;
+                }
+            }
+        }catch (SQLException exception){
+            throw new RuntimeException("Failed to find the book with ID");
+        }
 
     }
 
