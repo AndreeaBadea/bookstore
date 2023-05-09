@@ -70,12 +70,10 @@ public class UserRepository {
         ResultSet resultSet = roleStatement.executeQuery();
 
         List<Role> roles = UserUtil.getRolesFromResultSet(resultSet);
-        //sa adaug si orders sau sa schimb query-ul cu left join
         retrivedUser.ifPresent(user -> user.setRoles(roles));
         return retrivedUser;
     }
 
-    //sa scap de trim
     public Optional<User> getUserByEmail(List<User> users, String email) {
         return users.stream()
                 .filter(user -> email.equals(user.getEmail().trim()))
@@ -216,9 +214,6 @@ public class UserRepository {
 }
 
 class UserUtil {
-
-    private UserUtil() {
-    }
 
     public static List<User> getUsersFromResultSet(ResultSet resultSet) throws SQLException {
         List<User> users = new ArrayList<>();
