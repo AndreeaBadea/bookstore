@@ -42,6 +42,13 @@ public class BookController {
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Book> findBook(@PathVariable int id) throws SQLException {
+        bookService.findBookById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String>deleteBook(@PathVariable int id) throws SQLException {
         if (bookService.deleteBooks(id)){
@@ -50,12 +57,6 @@ public class BookController {
             return ResponseEntity.notFound().build();
         }
     }
-
-//    @ExceptionHandler({BookNotFoundException.class})
-//    public ResponseEntity<ErrorResponse> handleBookEx(BookNotFoundException msg) {
-//        Logger.error(" Failed to find the Book ", msg);
-//        return new ResponseEntity<>(new ErrorResponse(HttpStatus.NOT_FOUND, msg.getMessage()), HttpStatus.NOT_FOUND);
-//    }
 
     @ExceptionHandler({SQLException.class})
     public ResponseEntity<ErrorResponse> handleSQlEx(SQLException msg) {
