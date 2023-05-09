@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import static com.softserve.bookstore.data.ManageUserData.*;
+
 @Component
 public class ManageUserData {
 
@@ -44,10 +46,10 @@ public class ManageUserData {
                 String password = userDetails[2];
 
                 String ordersString = userDetails[3].substring(1, userDetails[3].length() - 1);
-                orders = parseOrders(ordersString);
+                orders = DataParser.parseOrders(ordersString);
 
                 String rolesString = userDetails[4].substring(1, userDetails[4].length() - 1);
-                roles = parseRoles(rolesString);
+                roles = DataParser.parseRoles(rolesString);
 
                 User user = new User(id, email, password, orders, roles);
                 userList.add(user);
@@ -56,19 +58,23 @@ public class ManageUserData {
         return userList;
     }
 
-    private List<OrderDto> parseOrders(String ordersString) {
+}
+
+class DataParser{
+
+    public static List<OrderDto> parseOrders(String ordersString) {
         List<OrderDto> finalOrders = new ArrayList<>();
         List<String> ordersList = Arrays.stream(ordersString.split("(?<=\\}),\\s"))
                 .map(String::new)
                 .collect(Collectors.toList());
 
         for (String order : ordersList) {
-           finalOrders.add(parseOrder(order));
+            finalOrders.add(parseOrder(order));
         }
         return finalOrders;
     }
 
-    private OrderDto parseOrder(String orderString) {
+    public static OrderDto parseOrder(String orderString) {
         OrderDto order = null;
 
         if (orderString.startsWith("Order{") && orderString.endsWith("}")) {
@@ -95,8 +101,7 @@ public class ManageUserData {
         return order;
     }
 
-
-    private List<Role> parseRoles(String rolesString) {
+    public static List<Role> parseRoles(String rolesString) {
         List<Role> roles = new ArrayList<>();
         String[] roleDetails = rolesString.split(",\\s*");
 

@@ -14,7 +14,7 @@ import java.util.List;
 
 
 @Component
-public class ReadDataFromBookFile {
+public class ManageBookData {
 
     private List<Book> list = new ArrayList<>();
 

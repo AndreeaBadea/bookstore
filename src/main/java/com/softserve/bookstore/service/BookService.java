@@ -1,6 +1,6 @@
 package com.softserve.bookstore.service;
 
-import com.softserve.bookstore.data.ReadDataFromBookFile;
+import com.softserve.bookstore.data.ManageBookData;
 import com.softserve.bookstore.generated.Book;
 import com.softserve.bookstore.repositories.BookRepository;
 
@@ -19,10 +19,10 @@ public class BookService {
 
 
     @Autowired
-    private ReadDataFromBookFile readDataFromBookFile;
+    private ManageBookData manageBookData;
 
     public List<Book> getBooksFromFile(String fileName) throws IOException {
-        return readDataFromBookFile.readData(fileName);
+        return manageBookData.readData(fileName);
     }
 
 
