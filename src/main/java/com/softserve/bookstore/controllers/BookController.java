@@ -24,7 +24,7 @@ public class BookController {
 
 
     @GetMapping("/file")
-    public ResponseEntity<List<Book>> getAlBookFromTxT() throws IOException {
+    public ResponseEntity<List<Book>> getAlBookFromFile() throws IOException {
         bookService.getBooksFromFile(FILE_NAME);
         return ResponseEntity.ok(bookService.getBooksFromFile(FILE_NAME));
     }
