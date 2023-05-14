@@ -35,17 +35,17 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable int userId) throws UserNotFoundException, SQLException {
-        UserDto userDto = UserMapper.toUserDto(userService.getUserById(userId));
-        return ResponseEntity.ok(userDto);
-    }
 
     @GetMapping("/last")
     public ResponseEntity<List<User>> getLastUsersAdded(@RequestParam int numberOfRecords) throws SQLException {
         return ResponseEntity.ok(userService.getLastUsersAdded(numberOfRecords));
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable int userId) throws UserNotFoundException, SQLException {
+        UserDto userDto = UserMapper.toUserDto(userService.getUserById(userId));
+        return ResponseEntity.ok(userDto);
+    }
     @PostMapping("/file")
     public ResponseEntity<String> addAllUsers() throws SQLException, IOException, UserNotFoundException {
         userService.addUsers(FILE_NAME);

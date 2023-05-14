@@ -60,7 +60,10 @@ public class ManageUserData {
 
 }
 
-class DataParser{
+class DataParser {
+
+    private DataParser() {
+    }
 
     public static List<OrderDto> parseOrders(String ordersString) {
         List<OrderDto> finalOrders = new ArrayList<>();
