@@ -1,6 +1,7 @@
 package com.softserve.bookstore.repositories;
 
 import com.softserve.bookstore.connection.ConnectionManager;
+import com.softserve.bookstore.exceptions.ProcessOrderException;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.generated.OrderDto;
 import com.softserve.bookstore.generated.Role;
@@ -62,8 +63,8 @@ public class UserRepository {
 
     public Optional<User> getUserById(int userId) throws SQLException {
         Optional<User> retrivedUser = findAll().stream()
-                                 .filter(user -> userId == user.getUserId())
-                                 .findFirst();
+                .filter(user -> userId == user.getUserId())
+                .findFirst();
 
         PreparedStatement roleStatement = connection.prepareStatement(SELECT_USERS_ROLES);
         roleStatement.setInt(1, userId);
@@ -112,12 +113,12 @@ public class UserRepository {
         userStatement.executeUpdate();
 
         ResultSet generatedKeys = userStatement.getGeneratedKeys();
-        if(generatedKeys.next()) {
+        if (generatedKeys.next()) {
             int userId = (int) generatedKeys.getLong(1);
             user.setUserId(userId);
         }
 
-        for(Role role : user.getRoles()) {
+        for (Role role : user.getRoles()) {
             addRole(role, user);
         }
         return user;
@@ -215,6 +216,9 @@ public class UserRepository {
 
 class UserUtil {
 
+    private UserUtil() {
+    }
+
     public static List<User> getUsersFromResultSet(ResultSet resultSet) throws SQLException {
         List<User> users = new ArrayList<>();
         while (resultSet.next()) {
@@ -233,7 +237,7 @@ class UserUtil {
         roleIds.put(2, Role.ADMIN);
 
         List<Role> roles = new ArrayList<>();
-        while (resultSet.next()){
+        while (resultSet.next()) {
             int roleId = resultSet.getInt("id_role");
             roles.add(roleIds.get(roleId));
         }

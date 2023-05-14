@@ -70,7 +70,6 @@ public class AuthorRepository {
         }
 
         public static List<Author> getAuthorFromResultsSet(ResultSet resultSet) throws SQLException {
-
             List<Author> authorsList = new ArrayList<>();
 
             while (resultSet.next()) {

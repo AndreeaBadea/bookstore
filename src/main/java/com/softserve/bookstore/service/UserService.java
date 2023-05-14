@@ -40,7 +40,6 @@ public class UserService {
     }
 
     public User getUserById(int userId) throws SQLException, UserNotFoundException {
-        List<User> users = getAllUsers();
         return userRepository.getUserById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User does not exist!"));
     }

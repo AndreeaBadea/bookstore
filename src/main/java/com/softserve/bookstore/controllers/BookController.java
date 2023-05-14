@@ -1,4 +1,5 @@
 package com.softserve.bookstore.controllers;
+import com.softserve.bookstore.exceptions.BookNotFoundException;
 import com.softserve.bookstore.generated.Book;
 import com.softserve.bookstore.models.ErrorResponse;
 import com.softserve.bookstore.service.BookService;
@@ -43,7 +44,7 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> findBook(@PathVariable int id) throws SQLException {
+    public ResponseEntity<Book> findBook(@PathVariable int id) throws SQLException, BookNotFoundException {
         bookService.findBookById(id);
         return new ResponseEntity<>(HttpStatus.OK);
 

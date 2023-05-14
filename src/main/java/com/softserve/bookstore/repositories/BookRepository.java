@@ -2,6 +2,7 @@ package com.softserve.bookstore.repositories;
 
 
 import com.softserve.bookstore.connection.ConnectionManager;
+import com.softserve.bookstore.exceptions.BookNotFoundException;
 import com.softserve.bookstore.exceptions.CustomExceptionAuthor;
 import com.softserve.bookstore.generated.Author;
 import com.softserve.bookstore.generated.Book;
@@ -49,7 +50,6 @@ public class BookRepository {
         return authors.stream().filter(author -> id == (author.getIdAuthor()))
                 .findFirst();
     }
-
 
 
     public List<Book> findAll() throws SQLException {
@@ -124,17 +124,17 @@ public class BookRepository {
     }
 
     @Transactional
-    public Author addAuthor(Author author ) throws SQLException{
-       String INSERT_AUTHOR = "INSERT INTO author( first_name,last_name) VALUES(?,?)";
+    public Author addAuthor(Author author) throws SQLException {
+        String INSERT_AUTHOR = "INSERT INTO author( first_name,last_name) VALUES(?,?)";
 
-       PreparedStatement authorStatement = connection.prepareStatement(INSERT_AUTHOR);
-       authorStatement.setString(1,author.getFirstName());
-       authorStatement.setString(2, author.getLastName());
+        PreparedStatement authorStatement = connection.prepareStatement(INSERT_AUTHOR);
+        authorStatement.setString(1, author.getFirstName());
+        authorStatement.setString(2, author.getLastName());
         authorStatement.executeUpdate();
 
         ResultSet generatedKeys = authorStatement.getGeneratedKeys();
 
-        if (generatedKeys.next()){
+        if (generatedKeys.next()) {
             int id = generatedKeys.getInt(1);
             author.setIdAuthor(id);
         }
@@ -143,15 +143,15 @@ public class BookRepository {
 
 
     @Transactional
-    public Book addBookForSoap (Book book) throws SQLException {
+    public Book addBookForSoap(Book book) throws SQLException {
 
 
         PreparedStatement bookStatement = connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);
 
-        bookStatement.setString(1,book.getTitle());
-        bookStatement.setInt(2,book.getAuthor().getIdAuthor());
-        bookStatement.setString(3,book.getGenre().name());
-        bookStatement.setFloat(4,book.getPrice());
+        bookStatement.setString(1, book.getTitle());
+        bookStatement.setInt(2, book.getAuthor().getIdAuthor());
+        bookStatement.setString(3, book.getGenre().name());
+        bookStatement.setFloat(4, book.getPrice());
         bookStatement.executeUpdate();
 
         ResultSet generatedKeys = bookStatement.getGeneratedKeys();
@@ -168,55 +168,53 @@ public class BookRepository {
     }
 
 
-
-
     @Transactional
     public boolean removeBook(int id) throws SQLException {
         PreparedStatement bookStatement = connection.prepareStatement(DELETE_BOOKS);
         bookStatement.setInt(1, id);
-        return  bookStatement.executeUpdate() > 0;
+        return bookStatement.executeUpdate() > 0;
 
     }
 
-    public Book getBookById(int id) throws SQLException {
-        try(PreparedStatement statement = connection.prepareStatement(FIND_BOOK_ID)){
-            statement.setInt(1,id);
+    public Book getBookById(int id) throws BookNotFoundException {
+        try (PreparedStatement statement = connection.prepareStatement(FIND_BOOK_ID)) {
+            statement.setInt(1, id);
 
-            try(ResultSet resultSet = statement.executeQuery()){
-                if (resultSet.next()){
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
                     Book book = new Book();
                     book.setIdBook(resultSet.getInt("id"));
                     book.setTitle(resultSet.getString("title"));
                     return book;
-                }else {
+                } else {
                     return null;
                 }
             }
-        }catch (SQLException exception){
-            throw new RuntimeException("Failed to find the book with ID");
+
+        } catch (SQLException exception) {
+            throw new BookNotFoundException("Failed to find the book with ID " + id);
         }
-
     }
-
 }
- class BookUtil extends BookRepository {
+
+class BookUtil extends BookRepository {
 
 
-     public static void addBooksToList(ResultSet resultSet, List<Book> books, List<Author> authors) throws SQLException {
+    public static void addBooksToList(ResultSet resultSet, List<Book> books, List<Author> authors) throws SQLException {
 
-         while (resultSet.next()) {
+        while (resultSet.next()) {
 
-             int bookId = resultSet.getInt("id");
-             String title = resultSet.getString("title");
-             int idAuthor = resultSet.getInt("id_author");
-             Author author = getAuthorById(authors, idAuthor).orElseThrow(() -> new
-                     CustomExceptionAuthor("Could not find author!"));
-             Genre genre = Genre.valueOf("FICTION");
-             float price = resultSet.getFloat("price");
+            int bookId = resultSet.getInt("id");
+            String title = resultSet.getString("title");
+            int idAuthor = resultSet.getInt("id_author");
+            Author author = getAuthorById(authors, idAuthor).orElseThrow(() -> new
+                    CustomExceptionAuthor("Could not find author!"));
+            Genre genre = Genre.valueOf("FICTION");
+            float price = resultSet.getFloat("price");
 
-             Book book = new Book(bookId, title, author, genre, price);
-             books.add(book);
+            Book book = new Book(bookId, title, author, genre, price);
+            books.add(book);
 
-         }
-     }
- }
+        }
+    }
+}
