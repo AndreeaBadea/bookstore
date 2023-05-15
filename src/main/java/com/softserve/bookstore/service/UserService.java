@@ -3,6 +3,8 @@ package com.softserve.bookstore.service;
 import com.softserve.bookstore.data.ManageUserData;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.generated.User;
+import com.softserve.bookstore.generated.UserDto;
+import com.softserve.bookstore.models.dtos.mappers.UserMapper;
 import com.softserve.bookstore.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,8 +58,8 @@ public class UserService {
         Logger.info("Users successfully added to the database.");
     }
 
-    public User addUser(User user) throws SQLException {
-        User userAdded = userRepository.addUser(user);
+    public UserDto addUser(User user) throws SQLException {
+        UserDto userAdded = userRepository.addUser(user);
         Logger.info("User id {} successfully added to the database.", userAdded.getUserId());
         return userAdded;
     }

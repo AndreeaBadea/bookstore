@@ -6,6 +6,8 @@ import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.generated.OrderDto;
 import com.softserve.bookstore.generated.Role;
 import com.softserve.bookstore.generated.User;
+import com.softserve.bookstore.generated.UserDto;
+import com.softserve.bookstore.models.dtos.mappers.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,7 +108,7 @@ public class UserRepository {
     }
 
     @Transactional
-    public User addUser(User user) throws SQLException {
+    public UserDto addUser(User user) throws SQLException {
         PreparedStatement userStatement = connection.prepareStatement(INSERT_USER, Statement.RETURN_GENERATED_KEYS);
         userStatement.setString(1, user.getEmail());
         userStatement.setString(2, user.getPassword());
@@ -121,7 +123,7 @@ public class UserRepository {
         for (Role role : user.getRoles()) {
             addRole(role, user);
         }
-        return user;
+        return UserMapper.toUserDto(user);
     }
 
     private void addRole(Role role, User user) throws SQLException {
