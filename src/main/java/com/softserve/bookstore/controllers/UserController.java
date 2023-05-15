@@ -53,9 +53,9 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> addUser(@RequestBody User user) throws SQLException {
-        userService.addUser(user);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    public ResponseEntity<UserDto> addUser(@RequestBody User user) throws SQLException {
+        UserDto userDto = userService.addUser(user);
+        return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{userId}")

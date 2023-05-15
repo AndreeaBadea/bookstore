@@ -50,8 +50,8 @@ public class UserEndpoint {
                 request.getUser().getEmail(),
                 request.getUser().getPassword(),
                 request.getUser().getRoles());
-        User addedUser = userService.addUser(userFromRequest);
-        response.setUserDto(UserMapper.toUserDto(addedUser));
+        UserDto addedUser = userService.addUser(userFromRequest);
+        response.setUserDto(addedUser);
         return response;
     }
 
