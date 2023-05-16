@@ -8,10 +8,12 @@
 
 package com.softserve.bookstore.generated;
 
+import com.softserve.bookstore.models.Observer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,13 +58,14 @@ import javax.xml.bind.annotation.XmlType;
     "orders",
     "roles"
 })
-public class User {
+public class User implements Observer {
 
     public static final String FIELD_USER_ID = "id_user";
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_ORDERS = "orders";
     public static final String FIELD_ROLES = "roles";
+    public static final String FIELD_SUBSCRIPTION = "is_subscribed";
 
     protected int userId;
 
@@ -76,16 +79,36 @@ public class User {
 
     protected List<Role> roles;
 
+    protected boolean isSubscribed;
+
     public User(int userId, String email, String password) {
         this.userId = userId;
         this.email = email;
         this.password = password;
+        this.isSubscribed = false;
     }
 
     public User(String email, String password, List<Role> roles) {
         this.email = email;
         this.password = password;
         this.roles = roles;
+        this.isSubscribed = false;
+    }
+
+    public User(int userId, String email, String password, List<OrderDto> orders, List<Role> roles) {
+        this.userId = userId;
+        this.email = email;
+        this.password = password;
+        this.orders = orders;
+        this.roles = roles;
+        this.isSubscribed = false;
+    }
+
+    public User(int userId, String email, String password, Boolean isSubscribed) {
+        this.userId = userId;
+        this.email = email;
+        this.password = password;
+        this.isSubscribed = isSubscribed;
     }
 
     /**
@@ -210,4 +233,12 @@ public class User {
         return this.roles;
     }
 
+    public boolean isSubscribed() {
+        return isSubscribed;
+    }
+
+    @Override
+    public void notifyObserver(String message) {
+        Logger.info("{} you got a new message! {}.", email, message);
+    }
 }

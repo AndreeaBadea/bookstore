@@ -95,7 +95,7 @@ class BookControllerTest extends BaseControllerTest<Book> {
 
         mvcResult = mockMvc.perform(post("/books").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated()).andReturn();
-        verify(bookService, times(1)).addBook(FILE_NAME);
+        verify(bookService, times(1)).addBooksFromFile(FILE_NAME);
 
         String content = mvcResult.getResponse().getContentAsString();
         assertEquals(content, "Added Books Successful");
@@ -140,12 +140,12 @@ class BookControllerTest extends BaseControllerTest<Book> {
     void handleSQlEx_If_Book_Fail() throws Exception {
 
         doThrow(new SQLException("**********************")).
-                when(bookService).addBook(FILE_NAME);
+                when(bookService).addBooksFromFile(FILE_NAME);
         mockMvc.perform(post("/books").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
         Exception exception = assertThrows(SQLException.class, () -> {
-            bookService.addBook(FILE_NAME);
+            bookService.addBooksFromFile(FILE_NAME);
         });
         assertEquals("**********************", exception.getMessage());
     }

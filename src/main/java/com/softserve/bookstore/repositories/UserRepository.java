@@ -31,6 +31,8 @@ public class UserRepository {
     public static final String DELETE_USER = "DELETE FROM users WHERE id_user = ?";
     public static final String DELETE_ROLE = "DELETE FROM users_roles WHERE id_user = ?";
     public static final String DELETE_ORDER = "DELETE FROM orders WHERE id_user = ?";
+    public static final String SUBSCRIBE_USER = "UPDATE users SET is_subscribed = 'true' WHERE id_user = ? ";
+    public static final String UNSUBSCRIBE_USER = "UPDATE users SET is_subscribed = 'false' WHERE id_user = ? ";
 
     @Autowired
     private ConnectionManager connectionManager;
@@ -208,6 +210,19 @@ public class UserRepository {
     }
 
 
+    public void subscribeToNewsletter(int userId) throws SQLException {
+        PreparedStatement subscriptionStatement = connection.prepareStatement(SUBSCRIBE_USER);
+        subscriptionStatement.setInt(1, userId);
+        subscriptionStatement.executeUpdate();
+    }
+
+    public void unsubscribeFromNewsletter(int userId) throws SQLException {
+        PreparedStatement subscriptionStatement = connection.prepareStatement(UNSUBSCRIBE_USER);
+        subscriptionStatement.setInt(1, userId);
+        subscriptionStatement.executeUpdate();
+    }
+
+
     @PreDestroy
     public void closeConnection() throws SQLException {
         if (connection != null) {
@@ -227,7 +242,8 @@ class UserUtil {
             int userId = resultSet.getInt(User.FIELD_USER_ID);
             String email = resultSet.getString(User.FIELD_EMAIL).trim();
             String password = resultSet.getString(User.FIELD_PASSWORD).trim();
-            User user = new User(userId, email, password);
+            Boolean isSubscribed = resultSet.getBoolean(User.FIELD_SUBSCRIPTION);
+            User user = new User(userId, email, password, isSubscribed);
             users.add(user);
         }
         return users;

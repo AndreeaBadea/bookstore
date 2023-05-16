@@ -4,6 +4,7 @@ import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.generated.User;
 import com.softserve.bookstore.generated.UserDto;
 import com.softserve.bookstore.models.ErrorResponse;
+import com.softserve.bookstore.models.Newsletter;
 import com.softserve.bookstore.models.dtos.mappers.UserMapper;
 import com.softserve.bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    Newsletter newsletter;
 
     @GetMapping("/file")
     public ResponseEntity<List<User>> getAllUsersFromFile() throws IOException {
@@ -56,6 +60,19 @@ public class UserController {
     public ResponseEntity<UserDto> addUser(@RequestBody User user) throws SQLException {
         UserDto userDto = userService.addUser(user);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{userId}/subscribe")
+    public ResponseEntity<String> subscribeToNewsletter(@PathVariable int userId) throws SQLException {
+        System.out.println(userId);
+        newsletter.subscribe(userService.getUserById(userId));
+        return new ResponseEntity<>("You have successffuly subscribed to the newsletter!", HttpStatus.OK);
+    }
+
+    @PutMapping("/{userId}/unsubscribe")
+    public ResponseEntity<String> unsubscribeToNewsletter(@PathVariable int userId) throws SQLException {
+        newsletter.unsubscribe(userService.getUserById(userId));
+        return new ResponseEntity<>("You have unsubscribed from the newsletter!", HttpStatus.OK);
     }
 
     @DeleteMapping("/{userId}")
