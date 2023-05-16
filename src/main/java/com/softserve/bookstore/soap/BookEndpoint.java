@@ -92,7 +92,7 @@ public class BookEndpoint {
                 request.getBook().getGenre(),
                 request.getBook().getPrice());
 
-        Book addBook = bookService.addBooks(bookRequest);
+        Book addBook = bookService.addBook(bookRequest);
         response.setBookDto(BookMapper.toBookDto(addBook));
         return response;
 

@@ -24,16 +24,18 @@ import static com.softserve.bookstore.repositories.AuthorRepository.AuthorUtil.a
 @Repository
 public class BookRepository {
 
-    public static final String INSERT_SQL = "INSERT INTO books (title,id_author,genre,price) VALUES (?,?,?,?)";
+    public static final String INSERT_BOOK = "INSERT INTO books (title,id_author,genre,price) VALUES (?,?,?,?)";
     public static final String QUERY = "SELECT * FROM author WHERE first_name = ? AND last_name = ? ";
     public static final String SELECT_LAST_AUTHORS = "SELECT TOP 3 * FROM author ORDER BY id_author DESC";
-    public static final String QUERY_AUTHORS = "INSERT INTO author( first_name,last_name) VALUES(?,?)";
+    public static final String INSERT_AUTHOR = "INSERT INTO author(first_name,last_name) VALUES(?,?)";
     public static final String SELECT_BOOKS = "SELECT * FROM books";
     public static final String SELECT_AUTHORS = "SELECT * FROM author";
     public static final String DELETE_BOOKS = "DELETE FROM books WHERE id = ?";
     public static final String FIND_BOOK_ID = "SELECT * FROM books WHERE id = ?";
+
     @Autowired
     private AuthorRepository authorRepository;
+
     @Autowired
     private ConnectionManager connectionManager;
 
@@ -42,7 +44,6 @@ public class BookRepository {
     @PostConstruct
     public void init() throws SQLException {
         connection = connectionManager.getConnection();
-
     }
 
 
@@ -60,12 +61,11 @@ public class BookRepository {
     }
 
     public List<Author> findAuthorByName(String firstName, String lastName) throws SQLException {
-
         PreparedStatement preparedStatement = connection.prepareStatement(QUERY);
-
         preparedStatement.setString(1, firstName);
         preparedStatement.setString(2, lastName);
         ResultSet rs = preparedStatement.executeQuery();
+
         List<Author> result = new ArrayList<>();
         while (rs.next()) {
             Author item = new Author();
@@ -76,32 +76,26 @@ public class BookRepository {
     }
 
     public List<Author> findLastAuthorsAdded(int numberOfRecords) throws SQLException {
-
         PreparedStatement authorStatement = connection.prepareStatement(SELECT_LAST_AUTHORS);
         ResultSet resultSet = authorStatement.executeQuery();
 
         List<Author> authors = new ArrayList<>();
-
         return AuthorRepository.AuthorUtil.getAuthors(resultSet, authors);
     }
 
 
     public void addAuthors(List<Author> authors) throws SQLException {
-
-        PreparedStatement statement = connection.prepareStatement(QUERY_AUTHORS);
-
+        PreparedStatement statement = connection.prepareStatement(INSERT_AUTHOR);
         authors.forEach(author -> addToBatch(statement, author));
         statement.executeBatch();
-
     }
 
     public List<Book> getBookList(ResultSet resultSet) throws SQLException {
-        List<Book> books = new ArrayList<>();
-        List<Author> authors;
-
         PreparedStatement authorStatement = connection.prepareStatement(SELECT_AUTHORS);
         ResultSet aut = authorStatement.executeQuery();
-        authors = AuthorRepository.AuthorUtil.getAuthorFromResultsSet(aut);
+
+        List<Author> authors = AuthorRepository.AuthorUtil.getAuthorFromResultsSet(aut);
+        List<Book> books = new ArrayList<>();
 
         BookUtil.addBooksToList(resultSet, books, authors);
         return books;
@@ -110,23 +104,18 @@ public class BookRepository {
 
     @Transactional
     public void addBooks(List<Book> bookList) throws SQLException {
-
-        PreparedStatement bookStatement = connection.prepareStatement(INSERT_SQL);
+        PreparedStatement bookStatement = connection.prepareStatement(INSERT_BOOK);
         List<Author> authorsListFromFile = new ArrayList<>();
         AuthorRepository.addingAuthorsFromList(bookList, authorsListFromFile);
-
 
         addAuthors(authorsListFromFile);
         List<Author> lastAuthorsAdded = findLastAuthorsAdded(3);
         authorRepository.addAuthorIdsToBooks(bookList, bookStatement, lastAuthorsAdded);
         bookStatement.executeBatch();
-
     }
 
     @Transactional
     public Author addAuthor(Author author) throws SQLException {
-        String INSERT_AUTHOR = "INSERT INTO author( first_name,last_name) VALUES(?,?)";
-
         PreparedStatement authorStatement = connection.prepareStatement(INSERT_AUTHOR);
         authorStatement.setString(1, author.getFirstName());
         authorStatement.setString(2, author.getLastName());
@@ -143,11 +132,8 @@ public class BookRepository {
 
 
     @Transactional
-    public Book addBookForSoap(Book book) throws SQLException {
-
-
-        PreparedStatement bookStatement = connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS);
-
+    public Book addBook(Book book) throws SQLException {
+        PreparedStatement bookStatement = connection.prepareStatement(INSERT_BOOK, Statement.RETURN_GENERATED_KEYS);
         bookStatement.setString(1, book.getTitle());
         bookStatement.setInt(2, book.getAuthor().getIdAuthor());
         bookStatement.setString(3, book.getGenre().name());
@@ -155,16 +141,11 @@ public class BookRepository {
         bookStatement.executeUpdate();
 
         ResultSet generatedKeys = bookStatement.getGeneratedKeys();
-
         if (generatedKeys.next()) {
             int id = (int) generatedKeys.getLong(1);
             book.setIdBook(id);
-            System.out.println(book);
         }
-
-
         return book;
-
     }
 
 

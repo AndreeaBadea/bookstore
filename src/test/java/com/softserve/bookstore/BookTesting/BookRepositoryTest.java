@@ -100,7 +100,7 @@ class BookRepositoryTest {
 //        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
         when(mockConnection.prepareStatement(BookRepository.INSERT_SQL)).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.SELECT_LAST_AUTHORS)).thenReturn(mockPreparedStatement);
-        when(mockConnection.prepareStatement(BookRepository.QUERY_AUTHORS)).thenReturn(mockPreparedStatement);
+        when(mockConnection.prepareStatement(BookRepository.INSERT_AUTHOR)).thenReturn(mockPreparedStatement);
 
         int[] executeBatchRes = {1, 1};
 

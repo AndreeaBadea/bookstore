@@ -1,6 +1,7 @@
 package com.softserve.bookstore.controllers;
 import com.softserve.bookstore.exceptions.BookNotFoundException;
 import com.softserve.bookstore.generated.Book;
+import com.softserve.bookstore.generated.BookDto;
 import com.softserve.bookstore.models.ErrorResponse;
 import com.softserve.bookstore.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +26,20 @@ public class BookController {
 
 
     @GetMapping("/file")
-    public ResponseEntity<List<Book>> getAlBookFromFile() throws IOException {
+    public ResponseEntity<List<Book>> getAllBooksFromFile() throws IOException {
         bookService.getBooksFromFile(FILE_NAME);
         return ResponseEntity.ok(bookService.getBooksFromFile(FILE_NAME));
     }
 
-    @PostMapping()
-    public ResponseEntity<String> addBook() throws SQLException, IOException {
-        bookService.addBook(FILE_NAME);
+    @PostMapping("/file")
+    public ResponseEntity<String> addBooksFromFile() throws SQLException, IOException {
+        bookService.addBooksFromFile(FILE_NAME);
         return new ResponseEntity<>("Added Books Successful", HttpStatus.CREATED);
+    }
+
+    @PostMapping()
+    public ResponseEntity<Book> addBook(@RequestBody Book book) throws SQLException {
+       return new ResponseEntity<>(bookService.addBook(book), HttpStatus.CREATED);
     }
 
 
@@ -51,7 +57,7 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String>deleteBook(@PathVariable int id) throws SQLException {
+    public ResponseEntity<String> deleteBook(@PathVariable int id) throws SQLException {
         if (bookService.deleteBooks(id)){
             return ResponseEntity.ok("Book deleted successful");
         }else {
