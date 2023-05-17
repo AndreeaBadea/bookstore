@@ -50,6 +50,7 @@ public class UserController {
         UserDto userDto = UserMapper.toUserDto(userService.getUserById(userId));
         return ResponseEntity.ok(userDto);
     }
+
     @PostMapping("/file")
     public ResponseEntity<String> addAllUsers() throws SQLException, IOException, UserNotFoundException {
         userService.addUsers(FILE_NAME);
@@ -64,7 +65,6 @@ public class UserController {
 
     @PutMapping("/{userId}/subscribe")
     public ResponseEntity<String> subscribeToNewsletter(@PathVariable int userId) throws SQLException {
-        System.out.println(userId);
         newsletter.subscribe(userService.getUserById(userId));
         return new ResponseEntity<>("You have successffuly subscribed to the newsletter!", HttpStatus.OK);
     }

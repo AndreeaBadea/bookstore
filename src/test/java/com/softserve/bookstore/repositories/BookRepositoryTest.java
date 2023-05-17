@@ -1,4 +1,4 @@
-package com.softserve.bookstore.BookTesting;
+package com.softserve.bookstore.repositories;
 
 import com.softserve.bookstore.connection.ConnectionManager;
 import com.softserve.bookstore.generated.Author;
@@ -98,7 +98,7 @@ class BookRepositoryTest {
     public void addBook_IfAdded_Success() {
 
 //        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
-        when(mockConnection.prepareStatement(BookRepository.INSERT_SQL)).thenReturn(mockPreparedStatement);
+        when(mockConnection.prepareStatement(BookRepository.INSERT_BOOK)).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.SELECT_LAST_AUTHORS)).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.INSERT_AUTHOR)).thenReturn(mockPreparedStatement);
 
