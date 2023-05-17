@@ -12,7 +12,7 @@ import java.sql.SQLException;
 public class Newsletter implements Observable {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Override
     public void subscribe(Observer observer) throws SQLException {
