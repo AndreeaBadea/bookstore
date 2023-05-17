@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import org.tinylog.Logger;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -27,13 +26,17 @@ public class DiscountScheduler {
     private Newsletter newsletter;
 
     public void scheduleDiscount() {
-        Callable<List<Book>> task = () -> {
-            //sa generez random si gen si numarul de carti pt care sa se faca discountul
-            List<Book> bookWithDiscount =  discountCalculator.applyDiscountOnBooks(Genre.DRAMA, 5);
-            Logger.info("Discount applied for {} books of {}.", bookWithDiscount.size(), Genre.DRAMA);
-            newsletter.notifyObservers("NEWSLETTER: Discount of 35% at books in " + Genre.DRAMA + " category");
-            return bookWithDiscount;
+        Runnable task = () -> {
+           try {
+
+               List<Book> bookWithDiscount = discountCalculator.applyDiscountOnBooks(Genre.DRAMA, 5);
+               Logger.info("Discount applied for {} books of {}.", bookWithDiscount.size(), Genre.DRAMA);
+               newsletter.notifyObservers("NEWSLETTER: Discount of 35% at books in " + Genre.DRAMA + " category");
+
+           } catch(Exception e){
+               e.printStackTrace();
+           }
         };
-        scheduledExecutorService.schedule(task, 30, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(task, 10,30, TimeUnit.SECONDS);
     }
 }

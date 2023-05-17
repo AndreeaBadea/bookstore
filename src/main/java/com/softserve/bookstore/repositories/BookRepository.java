@@ -34,6 +34,7 @@ public class BookRepository {
     public static final String DELETE_BOOKS = "DELETE FROM books WHERE id = ?";
     public static final String FIND_BOOK_ID = "SELECT * FROM books WHERE id = ?";
     public static final String SELECT_BOOKS_BY_GENRE = "SELECT * FROM books WHERE genre = ?";
+    public static final String UPDATE_PRICE = "UPDATE books SET price = ? WHERE id_book = ?";
 
     @Autowired
     private AuthorRepository authorRepository;
@@ -156,6 +157,12 @@ public class BookRepository {
         return book;
     }
 
+    public void updateBookPrice(int bookId, float newPrice) throws SQLException {
+        PreparedStatement priceUpdateStatement = connection.prepareStatement(UPDATE_PRICE);
+        priceUpdateStatement.setFloat(1, newPrice);
+        priceUpdateStatement.setInt(2, bookId);
+        priceUpdateStatement.executeUpdate();
+    }
 
     @Transactional
     public boolean removeBook(int id) throws SQLException {
