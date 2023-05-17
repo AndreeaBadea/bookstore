@@ -29,15 +29,10 @@ public class DiscountCalculator {
 
 
     public List<Book> applyDiscountOnBooks(Genre bookGenre, int numberOfBooks) throws SQLException {
-        List<Book> booksOfGenre = bookRepository.findAll().parallelStream()
-                .filter(book -> book.getGenre().equals(bookGenre))
-                .collect(Collectors.toList());
-        Logger.info("wtf");
-        System.out.println(booksOfGenre.size());
-        List<Book> selectedBooks =  selectRandomBooks(booksOfGenre, numberOfBooks);
+       List<Book> booksOfGenre = bookRepository.findBooksByGenre(bookGenre);
+       List<Book> selectedBooks =  selectRandomBooks(booksOfGenre, numberOfBooks);
 
        for(int i = 0; i < selectedBooks.size(); i++){
-           System.out.println("In fooorrr");
            float currentPrice = selectedBooks.get(i).getPrice();
            float priceAfterDiscount = calculateDiscount(currentPrice, 35);
            selectedBooks.get(i).setPrice(priceAfterDiscount);

@@ -3,6 +3,7 @@ package com.softserve.bookstore.service;
 import com.softserve.bookstore.data.ManageBookData;
 import com.softserve.bookstore.exceptions.BookNotFoundException;
 import com.softserve.bookstore.generated.Book;
+import com.softserve.bookstore.generated.Genre;
 import com.softserve.bookstore.models.Newsletter;
 import com.softserve.bookstore.repositories.BookRepository;
 
@@ -40,6 +41,9 @@ public class BookService {
         return bookRepository.getBookById(id);
     }
 
+    public List<Book> findBooksByGenre(Genre genre) throws SQLException {
+        return bookRepository.findBooksByGenre(genre);
+    }
 
     public void addBooksFromFile(String fileName) throws IOException, SQLException {
         List<Book> books = getBooksFromFile(fileName);

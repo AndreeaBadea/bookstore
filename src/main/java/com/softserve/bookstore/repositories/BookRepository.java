@@ -17,6 +17,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.softserve.bookstore.repositories.AuthorRepository.AuthorUtil.addToBatch;
 
@@ -32,6 +33,7 @@ public class BookRepository {
     public static final String SELECT_AUTHORS = "SELECT * FROM author";
     public static final String DELETE_BOOKS = "DELETE FROM books WHERE id = ?";
     public static final String FIND_BOOK_ID = "SELECT * FROM books WHERE id = ?";
+    public static final String SELECT_BOOKS_BY_GENRE = "SELECT * FROM books WHERE genre = ?";
 
     @Autowired
     private AuthorRepository authorRepository;
@@ -50,6 +52,12 @@ public class BookRepository {
     public static Optional<Author> getAuthorById(List<Author> authors, int id) {
         return authors.stream().filter(author -> id == (author.getIdAuthor()))
                 .findFirst();
+    }
+
+    public List<Book> findBooksByGenre(Genre genre) throws SQLException {
+        return findAll().stream()
+                .filter(book -> book.getGenre().equals(genre))
+                .collect(Collectors.toList());
     }
 
 
