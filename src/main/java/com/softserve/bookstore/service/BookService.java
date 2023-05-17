@@ -34,7 +34,6 @@ public class BookService {
 
     public List<Book> findAllBooks() throws SQLException {
         return bookRepository.findAll();
-
     }
 
     public Book findBookById(int id) throws SQLException, BookNotFoundException {

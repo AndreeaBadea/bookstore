@@ -97,7 +97,7 @@ public class BookRepository {
         List<Author> authors = AuthorRepository.AuthorUtil.getAuthorFromResultsSet(aut);
         List<Book> books = new ArrayList<>();
 
-        BookUtil.addBooksToList(resultSet, books, authors);
+        BookUtil.getBooksFromResultSet(resultSet, books, authors);
         return books;
     }
 //TODO parse the method addbooklist , parsing method for result set
@@ -181,21 +181,19 @@ public class BookRepository {
 class BookUtil extends BookRepository {
 
 
-    public static void addBooksToList(ResultSet resultSet, List<Book> books, List<Author> authors) throws SQLException {
+    public static void getBooksFromResultSet(ResultSet resultSet, List<Book> books, List<Author> authors) throws SQLException {
 
         while (resultSet.next()) {
-
-            int bookId = resultSet.getInt("id");
+            int bookId = resultSet.getInt("id_book");
             String title = resultSet.getString("title");
             int idAuthor = resultSet.getInt("id_author");
             Author author = getAuthorById(authors, idAuthor).orElseThrow(() -> new
                     CustomExceptionAuthor("Could not find author!"));
-            Genre genre = Genre.valueOf("FICTION");
+            Genre genre = Genre.valueOf(resultSet.getString("genre"));
             float price = resultSet.getFloat("price");
 
             Book book = new Book(bookId, title, author, genre, price);
             books.add(book);
-
         }
     }
 }
