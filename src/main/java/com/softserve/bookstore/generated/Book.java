@@ -18,6 +18,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -78,8 +79,6 @@ public class Book {
     protected Genre genre;
 
     protected float price;
-
-    private List<PriceHistory> priceHistory;
 
     public Book(int idBook, String title, Author author, Genre genre, float price) {
         this.idBook = idBook;

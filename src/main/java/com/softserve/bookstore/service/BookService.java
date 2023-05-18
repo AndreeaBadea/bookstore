@@ -4,6 +4,7 @@ import com.softserve.bookstore.data.ManageBookData;
 import com.softserve.bookstore.exceptions.BookNotFoundException;
 import com.softserve.bookstore.generated.Book;
 import com.softserve.bookstore.generated.Genre;
+import com.softserve.bookstore.models.DiscountParameters;
 import com.softserve.bookstore.models.Newsletter;
 import com.softserve.bookstore.repositories.BookRepository;
 

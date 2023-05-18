@@ -2,8 +2,10 @@ package com.softserve.bookstore.service;
 
 import com.softserve.bookstore.data.ManageUserData;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
+import com.softserve.bookstore.generated.Genre;
 import com.softserve.bookstore.generated.User;
 import com.softserve.bookstore.generated.UserDto;
+import com.softserve.bookstore.models.DiscountParameters;
 import com.softserve.bookstore.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,5 +69,6 @@ public class UserService {
         int noRowsAffected = userRepository.deleteUserById(userId);
         Logger.info("Number of rows affected after deletion: {}", noRowsAffected);
     }
+
 
 }

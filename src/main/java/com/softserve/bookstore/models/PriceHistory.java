@@ -27,6 +27,12 @@ public class PriceHistory {
 
     private Date changeDate;
 
+    public PriceHistory(int idBook, float previousPrice, Date changeDate) {
+        this.idBook = idBook;
+        this.previousPrice = previousPrice;
+        this.changeDate = changeDate;
+    }
+
     @Override
     public String toString() {
         return "PriceHistory{" +

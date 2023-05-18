@@ -1,11 +1,11 @@
 package com.softserve.bookstore.discounts;
 
+import com.softserve.bookstore.exceptions.PriceHistoryException;
 import com.softserve.bookstore.generated.Book;
 import com.softserve.bookstore.generated.Genre;
 import com.softserve.bookstore.models.PriceHistory;
 import com.softserve.bookstore.repositories.BookRepository;
 import com.softserve.bookstore.repositories.PriceHistoryRepository;
-import com.softserve.bookstore.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tinylog.Logger;
@@ -13,12 +13,10 @@ import org.tinylog.Logger;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
 @Component
 public class DiscountCalculator {
@@ -35,47 +33,83 @@ public class DiscountCalculator {
     }
 
 
-    public List<Book> applyDiscountOnBooks(Genre bookGenre, int numberOfBooks) throws SQLException {
-       List<Book> booksOfGenre = bookRepository.findBooksByGenre(bookGenre);
-       List<Book> selectedBooks =  selectRandomBooks(booksOfGenre, numberOfBooks);
+    public List<Book> applyDiscountOnBooks(Genre bookGenre, int maxNumberOfBooks, int discountPercentage) throws SQLException {
+        List<Book> booksOfGenre = bookRepository.findBooksByGenre(bookGenre);
+        List<Book> selectedBooks = selectRandomBooks(booksOfGenre, maxNumberOfBooks);
 
-       for(int i = 0; i < selectedBooks.size(); i++){
-           float currentPrice = selectedBooks.get(i).getPrice();
-           float priceAfterDiscount = calculateDiscount(currentPrice, 35);
+        for (Book book : selectedBooks) {
+            float currentPrice = book.getPrice();
+            float priceAfterDiscount = calculateDiscount(currentPrice, discountPercentage);
+
+            PriceHistory priceHistory = new PriceHistory(book.getIdBook(), currentPrice, Date.valueOf(LocalDate.now()));
+            priceHistoryRepository.addPriceHistory(priceHistory);
 
 
-           PriceHistory priceHistory = new PriceHistory();
-           priceHistory.setIdBook(selectedBooks.get(i).getIdBook());
-           priceHistory.setPreviousPrice(currentPrice);
-           priceHistory.setChangeDate(Date.valueOf(LocalDate.now()));
+            book.setPrice(priceAfterDiscount);
+            bookRepository.updateBookPrice(book.getIdBook(), priceAfterDiscount);
 
-           priceHistoryRepository.addPriceHistory(priceHistory);
-           selectedBooks.get(i).setPrice(priceAfterDiscount);
-           bookRepository.updateBookPrice(selectedBooks.get(i).getIdBook(), priceAfterDiscount);
+            Logger.info("{} is now at a discount price of {}. ", book.getTitle(), book.getPrice());
+        }
 
-           Logger.info("{} is now at a discount price of {}. ", selectedBooks.get(i).getTitle(), selectedBooks.get(i).getPrice() );
-       }
         return selectedBooks;
     }
 
-    public List<Book> selectRandomBooks(List<Book> booksList, int numberOfBooks){
+
+    public void restoreBookPrice(Book book) throws SQLException, PriceHistoryException {
+        PriceHistory priceHistory = priceHistoryRepository.getPriceHistoryByBookId(
+                book.getIdBook()).orElseThrow(() -> new PriceHistoryException("There is no previous price for book id " + book.getIdBook()));
+
+        if (priceHistory != null) {
+            float previousBookPrice = priceHistory.getPreviousPrice();
+            book.setPrice(previousBookPrice);
+
+            bookRepository.updateBookPrice(book.getIdBook(), previousBookPrice);
+            priceHistoryRepository.deletePriceHistoryByBookId(book.getIdBook());
+        }
+    }
+
+
+    private List<Book> getEligibleBooksForDiscount(List<Book> booksList) throws SQLException {
+        List<Book> eligibleBooks = new ArrayList<>();
+        for (Book book : booksList) {
+            Optional<PriceHistory> optionalPriceHistory = priceHistoryRepository.getPriceHistoryByBookId(book.getIdBook());
+            float previousPrice = 0;
+
+            if (optionalPriceHistory.isPresent()) {
+                previousPrice = optionalPriceHistory.get().getPreviousPrice();
+            }
+
+            if (previousPrice > book.getPrice()) {
+                Logger.info("{} already has a discount applied. Skipping..", book.getTitle());
+                continue;
+            }
+            eligibleBooks.add(book);
+        }
+        return eligibleBooks;
+    }
+
+
+    public List<Book> selectRandomBooks(List<Book> booksList, int numberOfBooks) throws SQLException {
         Random random = new Random();
         List<Book> randomBooks = new ArrayList<>();
-        Set<Integer> randomIndexes = new HashSet<>();
+        List<Book> eligibleBooks = getEligibleBooksForDiscount(booksList);
 
-        if(booksList.size() < numberOfBooks) {
-            return booksList;
+        if (eligibleBooks.size() <= numberOfBooks) {
+            return eligibleBooks;
         }
 
-        while(randomIndexes.size() < numberOfBooks){
-            int randomIndex = random.nextInt(booksList.size());
-            randomIndexes.add(randomIndex);
-        }
+        int attempts = 0;
+        while (randomBooks.size() < numberOfBooks && attempts <= eligibleBooks.size()) {
+            int randomIndex = random.nextInt(eligibleBooks.size());
+            Book randomBook = eligibleBooks.get(randomIndex);
 
-        for(int index : randomIndexes){
-            randomBooks.add(booksList.get(index));
-        }
+            if (!randomBooks.contains(randomBook)) {
+                randomBooks.add(randomBook);
+            }
 
+            attempts++;
+        }
         return randomBooks;
     }
+
 }
