@@ -1,9 +1,9 @@
 package com.softserve.bookstore.threads;
 
+import com.softserve.bookstore.config.DiscountParametersConfig;
 import com.softserve.bookstore.discounts.DiscountCalculator;
 import com.softserve.bookstore.exceptions.PriceHistoryException;
 import com.softserve.bookstore.generated.Book;
-import com.softserve.bookstore.generated.Genre;
 import com.softserve.bookstore.models.Newsletter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,13 +18,6 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class DiscountScheduler {
 
-    private static final int DISCOUNT_DURATION = 80;
-
-    private static final int MAX_NUMBER_OF_BOOKS = 5;
-
-    private static final Genre GENRE = Genre.DRAMA;
-
-    private static final int DISCOUNT_PERCENTAGE = 20;
 
     private final ScheduledExecutorService discountExecutorService = Executors.newSingleThreadScheduledExecutor();
 
@@ -36,17 +29,24 @@ public class DiscountScheduler {
     private DiscountCalculator discountCalculator;
 
     @Autowired
+    private DiscountParametersConfig discountParametersConfig;
+
+    @Autowired
     private Newsletter newsletter;
 
     public void scheduleDiscount() {
         Runnable task = () -> {
            try {
-               booksWithDiscount = discountCalculator.applyDiscountOnBooks(GENRE, MAX_NUMBER_OF_BOOKS, DISCOUNT_PERCENTAGE);
+               booksWithDiscount = discountCalculator.applyDiscountOnBooks(
+                       discountParametersConfig.GENRE,
+                       discountParametersConfig.MAX_NUMBER_OF_BOOKS,
+                       discountParametersConfig.DISCOUNT_PERCENTAGE);
 
                if(booksWithDiscount.size() > 0) {
-                   Logger.info("Discount applied for {} books of {}.", booksWithDiscount.size(), GENRE);
-                   newsletter.notifyObservers("NEWSLETTER: Discount of 10% at books in " + GENRE + " category");
-                   schedulePriceRestoration(booksWithDiscount, DISCOUNT_DURATION);
+                   Logger.info("Discount applied for {} books of {}.", booksWithDiscount.size(), discountParametersConfig.GENRE);
+                   newsletter.notifyObservers("NEWSLETTER: Discount of " + discountParametersConfig.DISCOUNT_PERCENTAGE +
+                           "% at books in " + discountParametersConfig.GENRE + " category");
+                   schedulePriceRestoration(booksWithDiscount, discountParametersConfig.DISCOUNT_DURATION);
                } else{
                    Logger.info("There are no books available for discount in this category.");
                }
@@ -71,6 +71,5 @@ public class DiscountScheduler {
             restorePriceExecutorService.schedule(task,  discountDuration, TimeUnit.SECONDS);
         }
     }
-
 
 }

@@ -47,7 +47,6 @@ import java.util.List;
  */
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "book", propOrder = {
