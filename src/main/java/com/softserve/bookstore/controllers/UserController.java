@@ -5,7 +5,9 @@ import com.softserve.bookstore.generated.User;
 import com.softserve.bookstore.generated.UserDto;
 import com.softserve.bookstore.models.ErrorResponse;
 import com.softserve.bookstore.models.Newsletter;
+import com.softserve.bookstore.models.PriceHistory;
 import com.softserve.bookstore.models.dtos.mappers.UserMapper;
+import com.softserve.bookstore.repositories.PriceHistoryRepository;
 import com.softserve.bookstore.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,8 @@ public class UserController {
 
     @Autowired
     Newsletter newsletter;
+    @Autowired
+    PriceHistoryRepository priceHistoryRepository;
 
     @GetMapping("/file")
     public ResponseEntity<List<User>> getAllUsersFromFile() throws IOException {
@@ -37,6 +41,12 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() throws SQLException {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+
+    @PostMapping("/priceHistory")
+    public ResponseEntity<PriceHistory> addPriceHistory(@RequestBody PriceHistory priceHistory) throws SQLException {
+        return new ResponseEntity<>(priceHistoryRepository.addPriceHistory(priceHistory), HttpStatus.CREATED);
     }
 
 

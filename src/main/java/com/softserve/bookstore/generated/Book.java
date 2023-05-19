@@ -8,6 +8,7 @@
 
 package com.softserve.bookstore.generated;
 
+import com.softserve.bookstore.models.PriceHistory;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -44,7 +47,6 @@ import javax.xml.bind.annotation.XmlType;
  */
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "book", propOrder = {
@@ -76,6 +78,15 @@ public class Book {
     protected Genre genre;
 
     protected float price;
+
+    public Book(int idBook, String title, Author author, Genre genre, float price) {
+        this.idBook = idBook;
+        this.title = title;
+        this.author = author;
+        this.genre = genre;
+        this.price = price;
+    }
+
 
     /**
      * Gets the value of the idBook property.

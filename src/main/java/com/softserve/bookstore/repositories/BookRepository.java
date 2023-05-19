@@ -17,6 +17,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.softserve.bookstore.repositories.AuthorRepository.AuthorUtil.addToBatch;
 
@@ -32,6 +33,8 @@ public class BookRepository {
     public static final String SELECT_AUTHORS = "SELECT * FROM author";
     public static final String DELETE_BOOKS = "DELETE FROM books WHERE id = ?";
     public static final String FIND_BOOK_ID = "SELECT * FROM books WHERE id = ?";
+    public static final String SELECT_BOOKS_BY_GENRE = "SELECT * FROM books WHERE genre = ?";
+    public static final String UPDATE_PRICE = "UPDATE books SET price = ? WHERE id_book = ?";
 
     @Autowired
     private AuthorRepository authorRepository;
@@ -50,6 +53,12 @@ public class BookRepository {
     public static Optional<Author> getAuthorById(List<Author> authors, int id) {
         return authors.stream().filter(author -> id == (author.getIdAuthor()))
                 .findFirst();
+    }
+
+    public List<Book> findBooksByGenre(Genre genre) throws SQLException {
+        return findAll().stream()
+                .filter(book -> book.getGenre().equals(genre))
+                .collect(Collectors.toList());
     }
 
 
@@ -97,7 +106,7 @@ public class BookRepository {
         List<Author> authors = AuthorRepository.AuthorUtil.getAuthorFromResultsSet(aut);
         List<Book> books = new ArrayList<>();
 
-        BookUtil.addBooksToList(resultSet, books, authors);
+        BookUtil.getBooksFromResultSet(resultSet, books, authors);
         return books;
     }
 //TODO parse the method addbooklist , parsing method for result set
@@ -148,6 +157,12 @@ public class BookRepository {
         return book;
     }
 
+    public void updateBookPrice(int bookId, float newPrice) throws SQLException {
+        PreparedStatement priceUpdateStatement = connection.prepareStatement(UPDATE_PRICE);
+        priceUpdateStatement.setFloat(1, newPrice);
+        priceUpdateStatement.setInt(2, bookId);
+        priceUpdateStatement.executeUpdate();
+    }
 
     @Transactional
     public boolean removeBook(int id) throws SQLException {
@@ -181,21 +196,19 @@ public class BookRepository {
 class BookUtil extends BookRepository {
 
 
-    public static void addBooksToList(ResultSet resultSet, List<Book> books, List<Author> authors) throws SQLException {
+    public static void getBooksFromResultSet(ResultSet resultSet, List<Book> books, List<Author> authors) throws SQLException {
 
         while (resultSet.next()) {
-
-            int bookId = resultSet.getInt("id");
+            int bookId = resultSet.getInt("id_book");
             String title = resultSet.getString("title");
             int idAuthor = resultSet.getInt("id_author");
             Author author = getAuthorById(authors, idAuthor).orElseThrow(() -> new
                     CustomExceptionAuthor("Could not find author!"));
-            Genre genre = Genre.valueOf("FICTION");
+            Genre genre = Genre.valueOf(resultSet.getString("genre"));
             float price = resultSet.getFloat("price");
 
             Book book = new Book(bookId, title, author, genre, price);
             books.add(book);
-
         }
     }
 }

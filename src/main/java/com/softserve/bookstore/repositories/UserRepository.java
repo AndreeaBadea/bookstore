@@ -118,7 +118,7 @@ public class UserRepository {
 
         ResultSet generatedKeys = userStatement.getGeneratedKeys();
         if (generatedKeys.next()) {
-            int userId = (int) generatedKeys.getLong(1);
+            int userId = generatedKeys.getInt(1);
             user.setUserId(userId);
         }
 

@@ -2,6 +2,8 @@ package com.softserve.bookstore.controllers;
 import com.softserve.bookstore.exceptions.BookNotFoundException;
 import com.softserve.bookstore.generated.Book;
 import com.softserve.bookstore.generated.BookDto;
+import com.softserve.bookstore.generated.Genre;
+import com.softserve.bookstore.models.DiscountParameters;
 import com.softserve.bookstore.models.ErrorResponse;
 import com.softserve.bookstore.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +55,13 @@ public class BookController {
     public ResponseEntity<Book> findBook(@PathVariable int id) throws SQLException, BookNotFoundException {
         bookService.findBookById(id);
         return new ResponseEntity<>(HttpStatus.OK);
-
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Book>> findBooksByGenre(@RequestParam String genre) throws SQLException {
+        return new ResponseEntity<>(bookService.findBooksByGenre(Genre.valueOf(genre)), HttpStatus.OK);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteBook(@PathVariable int id) throws SQLException {
