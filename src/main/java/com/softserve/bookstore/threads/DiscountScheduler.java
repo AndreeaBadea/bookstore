@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class DiscountScheduler {
 
-
     private final ScheduledExecutorService discountExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     private final ScheduledExecutorService restorePriceExecutorService = Executors.newSingleThreadScheduledExecutor();
@@ -38,15 +37,15 @@ public class DiscountScheduler {
         Runnable task = () -> {
            try {
                booksWithDiscount = discountCalculator.applyDiscountOnBooks(
-                       discountParametersConfig.GENRE,
-                       discountParametersConfig.MAX_NUMBER_OF_BOOKS,
-                       discountParametersConfig.DISCOUNT_PERCENTAGE);
+                       discountParametersConfig.genre,
+                       discountParametersConfig.maxNumberOfBooks,
+                       discountParametersConfig.discountPercentage);
 
                if(booksWithDiscount.size() > 0) {
-                   Logger.info("Discount applied for {} books of {}.", booksWithDiscount.size(), discountParametersConfig.GENRE);
-                   newsletter.notifyObservers("NEWSLETTER: Discount of " + discountParametersConfig.DISCOUNT_PERCENTAGE +
-                           "% at books in " + discountParametersConfig.GENRE + " category");
-                   schedulePriceRestoration(booksWithDiscount, discountParametersConfig.DISCOUNT_DURATION);
+                   Logger.info("Discount applied for {} books of {}.", booksWithDiscount.size(), discountParametersConfig.genre);
+                   newsletter.notifyObservers("NEWSLETTER: Discount of " + discountParametersConfig.discountPercentage +
+                           "% at books in " + discountParametersConfig.genre + " category");
+                   schedulePriceRestoration(booksWithDiscount, discountParametersConfig.discountDuration);
                } else{
                    Logger.info("There are no books available for discount in this category.");
                }
