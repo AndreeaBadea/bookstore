@@ -8,7 +8,9 @@
 
 package com.softserve.bookstore.generated;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -41,6 +43,8 @@ import javax.xml.bind.annotation.XmlType;
  * 
  * 
  */
+@AllArgsConstructor
+@NoArgsConstructor
 @Setter
 @Getter
 @XmlAccessorType(XmlAccessType.FIELD)

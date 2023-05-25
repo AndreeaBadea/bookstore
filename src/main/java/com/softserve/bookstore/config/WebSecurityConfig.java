@@ -22,11 +22,11 @@ public class WebSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public SecurityFilterChain filterChain (HttpSecurity httpSecurity) throws Exception{
-//        httpSecurity.csrf().disable();
-//        return httpSecurity.build();
-//    }
+    @Bean
+    public SecurityFilterChain filterChain (HttpSecurity httpSecurity) throws Exception{
+        httpSecurity.csrf().disable();
+        return httpSecurity.build();
+    }
 
     @Bean
     UserDetailsService userDetailsService (PasswordEncoder encoder){

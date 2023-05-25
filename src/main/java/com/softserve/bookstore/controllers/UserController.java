@@ -43,13 +43,6 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-
-    @PostMapping("/priceHistory")
-    public ResponseEntity<PriceHistory> addPriceHistory(@RequestBody PriceHistory priceHistory) throws SQLException {
-        return new ResponseEntity<>(priceHistoryRepository.addPriceHistory(priceHistory), HttpStatus.CREATED);
-    }
-
-
     @GetMapping("/last")
     public ResponseEntity<List<User>> getLastUsersAdded(@RequestParam int numberOfRecords) throws SQLException {
         return ResponseEntity.ok(userService.getLastUsersAdded(numberOfRecords));
