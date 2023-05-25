@@ -103,7 +103,7 @@ public class UserRepository {
             if (currentUser.getRoles().size() > 1) {
                 addRole(Role.ADMIN, user);
             }
-            if (currentUser.getOrders().size() > 1) {
+            if (!user.getOrders().isEmpty() && user.getOrders().stream().allMatch(Objects::nonNull)) {
                 addOrdersToUser(currentUser, users.size());
             }
         }

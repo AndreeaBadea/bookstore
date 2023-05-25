@@ -14,16 +14,15 @@ import org.springframework.context.annotation.PropertySource;
 public class DiscountParametersConfig {
 
     @Value("${discountDuration}")
-    public int DISCOUNT_DURATION;
+    public int discountDuration;
 
     @Value("${maxNumberOfBooks}")
-    public  int MAX_NUMBER_OF_BOOKS;
+    public int maxNumberOfBooks;
 
     @Value("${bookGenre}")
-    public  Genre GENRE;
+    public Genre genre;
 
     @Value("${discountPercentage}")
-    public  int DISCOUNT_PERCENTAGE;
-
+    public int discountPercentage;
 
 }

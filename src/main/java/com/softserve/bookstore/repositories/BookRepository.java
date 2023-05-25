@@ -50,11 +50,6 @@ public class BookRepository {
     }
 
 
-    public static Optional<Author> getAuthorById(List<Author> authors, int id) {
-        return authors.stream().filter(author -> id == (author.getIdAuthor()))
-                .findFirst();
-    }
-
     public List<Book> findBooksByGenre(Genre genre) throws SQLException {
         return findAll().stream()
                 .filter(book -> book.getGenre().equals(genre))
@@ -82,6 +77,11 @@ public class BookRepository {
             result.add(item);
         }
         return result;
+    }
+
+    public static Optional<Author> getAuthorById(List<Author> authors, int id) {
+        return authors.stream().filter(author -> id == (author.getIdAuthor()))
+                .findFirst();
     }
 
     public List<Author> findLastAuthorsAdded(int numberOfRecords) throws SQLException {
