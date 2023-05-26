@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.softserve.bookstore.generated.Role.USER;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -157,18 +158,19 @@ class UserControllerTest extends BaseControllerTest<User> {
         assertEquals(SQL_EXCEPTION_MESSAGE, actualException.getMessage());
     }
 
-//    @Test
-//    void addUser_Returns_CREATED_user() throws Exception {
-//        mvcResult = mockMvc.perform(post("/users")
-//                .content(jacksonTester.write(secondExpectedUser).getJson())
-//                .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isCreated())
-//                .andExpect(jsonPath("$.email").value(secondExpectedUserDto.getEmail()))
-//                .andReturn();
-//
-//        String actualUserJson = mvcResult.getResponse().getContentAsString();
-//        assertThat(actualUserJson).isNotEmpty();
-//    }
+    @Test
+    void addUser_Returns_CREATED_user() throws Exception {
+        when(userService.addUser(any())).thenReturn(secondExpectedUserDto);
+        mvcResult = mockMvc.perform(post("/users")
+                .content(jacksonTester.write(secondExpectedUser).getJson())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.email").value(secondExpectedUserDto.getEmail()))
+                .andReturn();
+
+        String actualUserJson = mvcResult.getResponse().getContentAsString();
+        assertThat(actualUserJson).isNotEmpty();
+    }
 
     @Test
     void deleteUser_Returns_OK() throws Exception {

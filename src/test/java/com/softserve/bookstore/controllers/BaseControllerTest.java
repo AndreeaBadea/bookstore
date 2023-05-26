@@ -22,6 +22,4 @@ public class BaseControllerTest<T> {
     @Autowired
     public JacksonTester<T> jacksonTester;
 
-    @Autowired
-    public ModelMapper modelMapper;
 }

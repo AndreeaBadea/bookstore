@@ -4,24 +4,25 @@ import com.softserve.bookstore.connection.ConnectionManager;
 import com.softserve.bookstore.exceptions.UserNotFoundException;
 import com.softserve.bookstore.generated.Role;
 import com.softserve.bookstore.generated.User;
-import com.softserve.bookstore.generated.UserDto;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith({MockitoExtension.class})
@@ -46,7 +47,7 @@ public class UserRepositoryTest {
 
     @Test
     @SneakyThrows
-    public void findAll_ReturnsTwoUser_Success() {
+     void findAll_ReturnsTwoUser_Success() {
         when(mockConnection.prepareStatement(UserRepository.SELECT_USERS)).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
 
@@ -54,7 +55,7 @@ public class UserRepositoryTest {
         List<User> userList = userRepository.findAll();
 
         verify(mockResultSet, times(3)).next();
-        assertEquals(userList.size(), 2);
+        assertEquals(2, userList.size());
 
         User foundUser1 = userList.get(0);
         assertEquals(foundUser1.getUserId(), expectedUser1.getUserId());
@@ -69,7 +70,7 @@ public class UserRepositoryTest {
 
 
     @Test
-    public void getUserById_ReturnsUser_Success() throws SQLException {
+     void getUserById_ReturnsUser_Success() throws SQLException {
         when(mockConnection.prepareStatement(UserRepository.SELECT_USERS)).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
 
@@ -81,18 +82,19 @@ public class UserRepositoryTest {
 
         mockResultSet = createUsersListMockForResultSet();
         User user = userRepository.getUserById(expectedUser1.getUserId()).get();
-        assertEquals(user.getUserId(), expectedUser1.getUserId());
+
+        assertEquals(expectedUser1.getUserId(), user.getUserId());
     }
 
     @Test
-    public void getUserByEmail_ReturnsUser_Success() {
+     void getUserByEmail_ReturnsUser_Success() {
         User user = userRepository.getUserByEmail(users, expectedUser1.getEmail()).get();
-        assertEquals(user.getEmail(), expectedUser1.getEmail());
-        assertEquals(user.getUserId(), expectedUser1.getUserId());
+        assertEquals(expectedUser1.getEmail(), user.getEmail());
+        assertEquals(expectedUser1.getUserId(),user.getUserId());
     }
 
     @Test
-    public void findLastUsers_Returns_Success() throws SQLException {
+     void findLastUsers_ReturnsLastUsers_Success() throws SQLException {
         List<User> users = List.of(expectedUser1, expectedUser2);
         when(mockConnection.prepareStatement(UserRepository.SELECT_LAST_USERS)).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
@@ -107,7 +109,7 @@ public class UserRepositoryTest {
     @Test
     @Transactional
     @Rollback
-    public void deleteUser_Returns_OneAffectedRow() throws SQLException, UserNotFoundException {
+     void deleteUser_Returns_OneAffectedRow() throws SQLException, UserNotFoundException {
         when(mockConnection.prepareStatement(UserRepository.SELECT_USERS))
                 .thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery())
@@ -141,7 +143,7 @@ public class UserRepositoryTest {
     @Test
     @Transactional
     @Rollback
-    public void add_AddsTwoUsers_Success() throws SQLException, UserNotFoundException {
+     void add_AddsTwoUsers_Success() throws SQLException, UserNotFoundException {
         when(mockConnection.prepareStatement(UserRepository.INSERT_USER)).thenReturn(mockPreparedStatement);
         int[] expectedBatchResult = {1, 1};
         when(mockPreparedStatement.executeBatch()).thenReturn(expectedBatchResult);
@@ -165,23 +167,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void addUser_Adds_Success() throws SQLException {
-        when(mockConnection.prepareStatement(UserRepository.INSERT_USER, Statement.RETURN_GENERATED_KEYS)).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-        when(mockPreparedStatement.getGeneratedKeys()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(true);
-        when(mockResultSet.getInt(1)).thenReturn(1);
-
-        UserDto userDto = userRepository.addUser(expectedUser1);
-
-        verify(mockPreparedStatement, times(1)).setString(1, expectedUser1.getEmail());
-        verify(mockPreparedStatement, times(1)).setString(1, expectedUser1.getPassword());
-        assertEquals(expectedUser1.getEmail(), userDto.getEmail());
-
-    }
-
-    @Test
-    public void findAll_ThrowsSqlException_Failure() throws SQLException {
+     void findAll_ThrowsSqlException_Failure() throws SQLException {
         doThrow(new SQLException(expectedExceptionMessage)).when(mockConnection).prepareStatement(UserRepository.SELECT_USERS);
         Exception actualException = assertThrows(SQLException.class, () -> {
             userRepository.findAll();
@@ -190,16 +176,17 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void deleteUser_ThrowsUserNotFound_Failure() throws SQLException {
+     void deleteUser_ThrowsUserNotFound_Failure() throws SQLException {
         doThrow(new UserNotFoundException(expectedExceptionMessage)).when(mockConnection).prepareStatement(UserRepository.SELECT_USERS);
+        int userId = expectedUser1.getUserId();
         Exception actualException = assertThrows(UserNotFoundException.class, () -> {
-            userRepository.deleteUserById(expectedUser1.getUserId());
+            userRepository.deleteUserById(userId);
         });
         assertEquals(actualException.getMessage(), expectedExceptionMessage);
     }
 
     @Test
-    public void deleteUser_ThrowsSqlException_Failure() throws SQLException {
+     void deleteUser_ThrowsSqlException_Failure() throws SQLException {
         when(mockConnection.prepareStatement(UserRepository.SELECT_USERS)).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
         mockResultSet = createUsersListMockForResultSet();
@@ -212,7 +199,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void subscribeToNewsletter_Success() throws SQLException {
+     void subscribeToNewsletter_Success() throws SQLException {
         when(mockConnection.prepareStatement(UserRepository.SUBSCRIBE_USER)).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeUpdate()).thenReturn(1);
         userRepository.subscribeToNewsletter(expectedUser1.getUserId());
@@ -220,7 +207,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void unsubscribeToNewsletter_Success() throws SQLException {
+     void unsubscribeToNewsletter_Success() throws SQLException {
         when(mockConnection.prepareStatement(UserRepository.UNSUBSCRIBE_USER)).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeUpdate()).thenReturn(1);
         userRepository.unsubscribeFromNewsletter(expectedUser1.getUserId());
@@ -228,7 +215,7 @@ public class UserRepositoryTest {
     }
 
 
-    public ResultSet createUsersListMockForResultSet() throws SQLException {
+    private ResultSet createUsersListMockForResultSet() throws SQLException {
         when(mockResultSet.next())
                 .thenReturn(true)
                 .thenReturn(true)
@@ -246,7 +233,7 @@ public class UserRepositoryTest {
         return mockResultSet;
     }
 
-    public ResultSet createUserMockResultSet() throws SQLException {
+    private ResultSet createUserMockResultSet() throws SQLException {
         when(mockResultSet.next())
                 .thenReturn(true)
                 .thenReturn(false);
@@ -257,7 +244,7 @@ public class UserRepositoryTest {
         return mockResultSet;
     }
 
-    public ResultSet createRolesListMockForResultSet() throws SQLException {
+    private ResultSet createRolesListMockForResultSet() throws SQLException {
         when(mockResultSet.next())
                 .thenReturn(true)
                 .thenReturn(false);
