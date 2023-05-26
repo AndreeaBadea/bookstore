@@ -4,7 +4,6 @@ import com.softserve.bookstore.generated.Author;
 import com.softserve.bookstore.generated.Book;
 import com.softserve.bookstore.generated.Genre;
 import com.softserve.bookstore.service.BookService;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -18,10 +17,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class BookControllerTest extends BaseControllerTest<Book> {
@@ -32,8 +30,7 @@ class BookControllerTest extends BaseControllerTest<Book> {
     BookService bookService;
 
     @Test
-    @DisplayName("Finding book")
-    void findBook_IF_Success() throws Exception {
+    void getAllBooks_Returns_OK() throws Exception {
         Book book = new Book(1, "STrula", new Author(1, " Bula ", "Mih223ai"),
                 Genre.FICTION, 12000);
 
@@ -56,9 +53,7 @@ class BookControllerTest extends BaseControllerTest<Book> {
     }
 
     @Test
-    void getAlBookFromTxT_If_Success() throws Exception {
-
-
+    void getAllBooksFromFile_Returns_OK() throws Exception {
         List<Book> booksListFromFile = List.of(new Book(1, "White Fang", new Author("George", "Martin"), Genre.HORROR, 1200));
         when(bookService.getBooksFromFile(FILE_NAME)).thenReturn(booksListFromFile);
 
@@ -75,9 +70,7 @@ class BookControllerTest extends BaseControllerTest<Book> {
     }
 
     @Test
-    @DisplayName("Adding books successful")
-    void addBook_If_Success() throws Exception {
-
+    void addBook_Return_CREATED_book() throws Exception {
         Book book = new Book(1, "STrula", new Author(1, " Bula ", "Mih223ai"),
                 Genre.FICTION, 12000);
 
@@ -90,9 +83,7 @@ class BookControllerTest extends BaseControllerTest<Book> {
     }
 
     @Test
-    @DisplayName("Add book from file")
-    void addBook_FromFile_If_Success() throws Exception {
-
+    void addBooksFromFile_Returns_CREATED() throws Exception {
         mvcResult = mockMvc.perform(post("/books").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated()).andReturn();
         verify(bookService, times(1)).addBooksFromFile(FILE_NAME);
@@ -105,9 +96,7 @@ class BookControllerTest extends BaseControllerTest<Book> {
 
 
     @Test
-    @DisplayName("Deleting books is successful")
-    void deleteBook_If_Success() throws Exception {
-
+    void deleteBook_Returns_OK() throws Exception {
         Book book = new Book(1, "STrula", new Author(1, " Bula ", "Mih223ai"),
                 Genre.FICTION, 12000);
 
@@ -122,8 +111,7 @@ class BookControllerTest extends BaseControllerTest<Book> {
 
 
     @Test
-    @DisplayName("Deleting books is not possible")
-    void deleteBook_If_NOT_FOUND() throws Exception {
+    void deleteBook_Returns_NOT_FOUND() throws Exception {
 
         mvcResult = mockMvc.perform(delete("/books/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -137,8 +125,7 @@ class BookControllerTest extends BaseControllerTest<Book> {
 
 
     @Test
-    void handleSQlEx_If_Book_Fail() throws Exception {
-
+    void addBooks_Fails_SQL_EXCEPTION() throws Exception {
         doThrow(new SQLException("**********************")).
                 when(bookService).addBooksFromFile(FILE_NAME);
         mockMvc.perform(post("/books").contentType(MediaType.APPLICATION_JSON))
@@ -151,8 +138,7 @@ class BookControllerTest extends BaseControllerTest<Book> {
     }
 
     @Test
-    void handleIoEx_IF_GetBook_Fail() throws Exception {
-
+    void getAllBooksFromFile_Fails_IOEXCEPTION() throws Exception {
         doThrow(new IOException("**********")).
                 when(bookService).getBooksFromFile(FILE_NAME);
         mockMvc.perform(get("/books/file").contentType(MediaType.APPLICATION_JSON))

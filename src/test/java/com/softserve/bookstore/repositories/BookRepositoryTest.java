@@ -4,8 +4,6 @@ import com.softserve.bookstore.connection.ConnectionManager;
 import com.softserve.bookstore.generated.Author;
 import com.softserve.bookstore.generated.Book;
 import com.softserve.bookstore.generated.Genre;
-import com.softserve.bookstore.repositories.AuthorRepository;
-import com.softserve.bookstore.repositories.BookRepository;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,13 +43,12 @@ class BookRepositoryTest {
     private ResultSet mockResultSet;
 
 
-    private static final Book book = new Book(1, "Bula", new Author(1, " Bula ", "Mihai"), Genre.FICTION, 12000);
-    private static final Book bookie2 = new Book(2, "Strula", new Author(2, " Strula ", "Mihai"), Genre.BIOGRAPHY, 1000);
+    private static final Book firstBook = new Book(1, "GoF", new Author(1, " Bula ", "Mihai"), Genre.FICTION, 12000);
+    private static final Book secondBook = new Book(2, "Clean Code", new Author(2, " Strula ", "Mihai"), Genre.BIOGRAPHY, 1000);
 
     @Test
     @SneakyThrows
-    public void findAll_ReturnsBooks_Success() {
-
+    public void findAll_ReturnsTwoBooks_Success() {
         when(mockConnection.prepareStatement(BookRepository.SELECT_BOOKS)).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.SELECT_AUTHORS)).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery())
@@ -64,40 +61,38 @@ class BookRepositoryTest {
 
 
         when(mockResultSet.getInt(Book.FIELD_BOOK_ID))
-                .thenReturn(book.getIdBook())
-                .thenReturn(bookie2.getIdBook());
+                .thenReturn(firstBook.getIdBook())
+                .thenReturn(secondBook.getIdBook());
 
         when(mockResultSet.getString(Book.FIELD_FIRSTNAME))
-                .thenReturn(book.getAuthor().getFirstName() + book.getAuthor().getLastName())
-                .thenReturn(bookie2.getAuthor().getFirstName() + book.getAuthor().getLastName());
+                .thenReturn(firstBook.getAuthor().getFirstName() + firstBook.getAuthor().getLastName())
+                .thenReturn(secondBook.getAuthor().getFirstName() + firstBook.getAuthor().getLastName());
 
 
         List<Book> bookList = bookRepository.findAll();
-        bookList.add(book);
-        bookList.add(bookie2);
+        bookList.add(firstBook);
+        bookList.add(secondBook);
 
         verify(mockResultSet, times(4)).next();
         assertEquals(2, bookList.size());
 
         Book foundBook = bookList.get(0);
-        assertEquals(foundBook.getIdBook(), book.getIdBook());
-        assertEquals(foundBook.getTitle(), book.getTitle());
-        assertEquals(foundBook.getAuthor().getFirstName(), book.getAuthor().getFirstName());
-        assertEquals(foundBook.getAuthor().getLastName(), book.getAuthor().getLastName());
+        assertEquals(foundBook.getIdBook(), firstBook.getIdBook());
+        assertEquals(foundBook.getTitle(), firstBook.getTitle());
+        assertEquals(foundBook.getAuthor().getFirstName(), firstBook.getAuthor().getFirstName());
+        assertEquals(foundBook.getAuthor().getLastName(), firstBook.getAuthor().getLastName());
 
         Book foundBook2 = bookList.get(1);
-        assertEquals(foundBook2.getIdBook(), bookie2.getIdBook());
-        assertEquals(foundBook2.getTitle(), bookie2.getTitle());
-        assertEquals(foundBook2.getAuthor().getFirstName(), bookie2.getAuthor().getFirstName());
-        assertEquals(foundBook2.getAuthor().getLastName(), bookie2.getAuthor().getLastName());
+        assertEquals(foundBook2.getIdBook(), secondBook.getIdBook());
+        assertEquals(foundBook2.getTitle(), secondBook.getTitle());
+        assertEquals(foundBook2.getAuthor().getFirstName(), secondBook.getAuthor().getFirstName());
+        assertEquals(foundBook2.getAuthor().getLastName(), secondBook.getAuthor().getLastName());
     }
 
     @Test
     @DisplayName("Adding books Successful")
     @SneakyThrows
-    public void addBook_IfAdded_Success() {
-
-//        when(mockConnectionManager.getConnection()).thenReturn(mockConnection);
+    public void addBook_ReturnsBook_Success() {
         when(mockConnection.prepareStatement(BookRepository.INSERT_BOOK)).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.SELECT_LAST_AUTHORS)).thenReturn(mockPreparedStatement);
         when(mockConnection.prepareStatement(BookRepository.INSERT_AUTHOR)).thenReturn(mockPreparedStatement);
@@ -113,16 +108,16 @@ class BookRepositoryTest {
                 .thenReturn(false);
 
         when(mockResultSet.getInt(Book.FIELD_BOOK_ID))
-                .thenReturn(book.getIdBook())
-                .thenReturn(bookie2.getIdBook());
+                .thenReturn(firstBook.getIdBook())
+                .thenReturn(secondBook.getIdBook());
 
         when(mockResultSet.getString(Book.FIELD_FIRSTNAME))
-                .thenReturn(book.getAuthor().getFirstName() + book.getAuthor().getLastName())
-                .thenReturn(bookie2.getAuthor().getLastName() + book.getAuthor().getLastName());
+                .thenReturn(firstBook.getAuthor().getFirstName() + firstBook.getAuthor().getLastName())
+                .thenReturn(secondBook.getAuthor().getLastName() + firstBook.getAuthor().getLastName());
 
         List<Book> bookList = new ArrayList<>();
-        bookList.add(book);
-        bookList.add(bookie2);
+        bookList.add(firstBook);
+        bookList.add(secondBook);
 
         bookRepository.addBooks(bookList);
         bookRepository.findLastAuthorsAdded(2);
@@ -138,20 +133,24 @@ class BookRepositoryTest {
 
 
     @Test
-    @DisplayName("Delete books Successful")
+    @DisplayName("Delete book success")
     @Transactional
-    void removeBook_IfSuccess() throws SQLException {
-
+    void deleteBook_Returns_True() throws SQLException {
         when(mockConnection.prepareStatement(BookRepository.DELETE_BOOKS))
                 .thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeUpdate())
                 .thenReturn(1);
 
-        boolean removeBook = bookRepository.removeBook(book.getIdBook());
+        boolean removeBook = bookRepository.removeBook(firstBook.getIdBook());
         assertTrue(removeBook);
-        assertEquals(1,book.getIdBook());
-        verify(mockPreparedStatement,times(1)).setInt(1,book.getIdBook());
+        assertEquals(1, firstBook.getIdBook());
+        verify(mockPreparedStatement,times(1)).setInt(1, firstBook.getIdBook());
 
     }
+
+
+
+
+
 }
 
