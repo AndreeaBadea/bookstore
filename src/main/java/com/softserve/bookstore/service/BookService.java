@@ -38,7 +38,7 @@ public class BookService {
         return bookRepository.findAll();
     }
 
-    public Book findBookById(int id) throws SQLException, BookNotFoundException {
+    public Book findBookById(int id) throws BookNotFoundException {
         return bookRepository.getBookById(id);
     }
 

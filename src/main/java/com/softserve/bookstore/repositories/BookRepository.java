@@ -109,7 +109,6 @@ public class BookRepository {
         BookUtil.getBooksFromResultSet(resultSet, books, authors);
         return books;
     }
-//TODO parse the method addbooklist , parsing method for result set
 
     @Transactional
     public void addBooks(List<Book> bookList) throws SQLException {
@@ -199,7 +198,7 @@ class BookUtil extends BookRepository {
     public static void getBooksFromResultSet(ResultSet resultSet, List<Book> books, List<Author> authors) throws SQLException {
 
         while (resultSet.next()) {
-            int bookId = resultSet.getInt("id_book");
+            int bookId = resultSet.getInt("id");
             String title = resultSet.getString("title");
             int idAuthor = resultSet.getInt("id_author");
             Author author = getAuthorById(authors, idAuthor).orElseThrow(() -> new
