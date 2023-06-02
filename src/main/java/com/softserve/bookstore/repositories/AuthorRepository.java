@@ -13,7 +13,6 @@ import java.util.List;
 
 @Repository
 public class AuthorRepository {
-
     static void addingAuthorsFromList(List<Book> bookList, List<Author> authorsListFromFile) {
         for (Book book : bookList) {
             String firstName = book.getAuthor().getFirstName();
@@ -58,7 +57,7 @@ public class AuthorRepository {
             return authors;
         }
 
-        public static void addToBatch(PreparedStatement statement, Author author) {
+        public static void addToBatch(PreparedStatement statement,Author author) {
             try {
 
                 statement.setString(1, author.getFirstName());

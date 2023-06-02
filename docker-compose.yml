@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  api:
+    build: . \bookstore
+    ports:
+      - "8080:8080"
+
+
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_USER: g3his
+      MYSQL_PASSWORD: g3his
+      MYSQL_ROOT_PASSWORD: g3his
+      MYSQL_DB: booksstore
+    ports:
+      - "1431:8080"
