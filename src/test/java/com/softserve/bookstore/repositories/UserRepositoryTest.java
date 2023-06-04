@@ -123,14 +123,13 @@ class UserRepositoryTest {
         when(mockResultSet.getInt(1)).thenReturn(expectedUser1.getUserId());
 
         when(mockConnection.prepareStatement(UserRepository.INSERT_USERS_ROLES)).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(2);
 
         UserDto userDto = userRepository.addUser(expectedUser1);
 
         verify(mockPreparedStatement, times(1)).setString(1, expectedUser1.getEmail());
         verify(mockPreparedStatement, times(1)).setString(2, expectedUser1.getPassword());
         assertEquals(expectedUser1.getEmail(), userDto.getEmail());
-
     }
 
     @Test

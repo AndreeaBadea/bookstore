@@ -5,6 +5,8 @@ import com.softserve.bookstore.generated.UserDto;
 
 public class UserMapper {
 
+    private UserMapper() { }
+
     public static UserDto toUserDto(User user){
         UserDto userDto = new UserDto();
         userDto.setUserId(user.getUserId());
